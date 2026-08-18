@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="ALTERA">
+  <!--
+    Фирменный знак ALTERA: октаэдр из четырёх видимых граней и «А» в центре.
+    Треугольник «А» вырезан маской, а не залит цветом, — сквозь него видно фон
+    страницы, поэтому знак одинаково работает и на тёмном полотне, и на плашке.
+    Вершины: верх T(256,34), низ B(256,478), бока L(54,268) и R(458,268),
+    центр C(256,268) — через него проходят обе внутренние грани.
+    «А» занимает ~38% высоты знака: апекс выше экватора, база ниже, но нижняя
+    пирамида остаётся целой — иначе ромб распадается на два куска.
+  -->
+  <defs>
+    <linearGradient id="al-ul" gradientUnits="userSpaceOnUse" x1="54" y1="268" x2="256" y2="140">
+      <stop offset="0" stop-color="#FF8A00"/>
+      <stop offset=".55" stop-color="#FF4D6D"/>
+      <stop offset="1" stop-color="#FF2D9B"/>
+    </linearGradient>
+    <linearGradient id="al-ur" gradientUnits="userSpaceOnUse" x1="458" y1="268" x2="256" y2="140">
+      <stop offset="0" stop-color="#6D28E8"/>
+      <stop offset=".5" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#E5219B"/>
+    </linearGradient>
+    <linearGradient id="al-ll" gradientUnits="userSpaceOnUse" x1="54" y1="268" x2="256" y2="430">
+      <stop offset="0" stop-color="#FF7A18"/>
+      <stop offset=".45" stop-color="#FF2D9B"/>
+      <stop offset="1" stop-color="#F0339E"/>
+    </linearGradient>
+    <linearGradient id="al-lr" gradientUnits="userSpaceOnUse" x1="458" y1="268" x2="256" y2="430">
+      <stop offset="0" stop-color="#8B3BF7"/>
+      <stop offset=".45" stop-color="#C026D3"/>
+      <stop offset="1" stop-color="#F0339E"/>
+    </linearGradient>
+    <linearGradient id="al-edge" gradientUnits="userSpaceOnUse" x1="54" y1="268" x2="458" y2="268">
+      <stop offset="0" stop-color="#FFC880" stop-opacity=".75"/>
+      <stop offset=".5" stop-color="#FFEAF6" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#CBA6FF" stop-opacity=".75"/>
+    </linearGradient>
+
+    <!-- блик рисуем внутри силуэта, чтобы обводка не торчала за грани -->
+    <clipPath id="al-body">
+      <path d="M256 34 458 268 256 478 54 268Z"/>
+    </clipPath>
+
+    <!-- «А»: большой треугольник вырезан, малый внутри возвращён -->
+    <mask id="al-a">
+      <rect width="512" height="512" fill="#fff"/>
+      <path d="M256 193 351 363 161 363Z" fill="#000"/>
+      <path d="M256 296 287 352 225 352Z" fill="#fff"/>
+    </mask>
+  </defs>
+
+  <g mask="url(#al-a)">
+    <path class="altera-facet altera-facet--ul" d="M256 34 54 268 256 268Z"  fill="url(#al-ul)"/>
+    <path class="altera-facet altera-facet--ur" d="M256 34 458 268 256 268Z" fill="url(#al-ur)"/>
+    <path class="altera-facet altera-facet--ll" d="M256 478 54 268 256 268Z" fill="url(#al-ll)"/>
+    <path class="altera-facet altera-facet--lr" d="M256 478 458 268 256 268Z" fill="url(#al-lr)"/>
+    <!-- свет сверху: нижние грани чуть глубже, знак перестаёт быть плоским -->
+    <path d="M256 478 54 268 458 268Z" fill="#0A0611" opacity=".10"/>
+    <g clip-path="url(#al-body)">
+      <path d="M54 268 256 34 458 268" fill="none" stroke="url(#al-edge)" stroke-width="6" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

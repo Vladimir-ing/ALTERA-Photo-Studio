@@ -1,5 +1,6 @@
 /*
- * Сборка страницы из GALLERY (js/gallery-data.js), меню, лайтбокс и скролл-эффекты.
+ * Сборка страницы из данных (js/gallery-data.js): меню, хиро, галереи,
+ * пакеты, вопросы, лайтбокс и скролл-эффекты.
  * Без зависимостей — файл подключается обычным <script> и работает как с сервера,
  * так и при открытии index.html с диска.
  */
@@ -14,6 +15,70 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Тексты приходят из файла данных, который правит владелец сайта, но кавычки
+  // и угловые скобки в них не должны разваливать разметку.
+  const esc = (v) => String(v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  // WebP там, где он поддерживается, JPEG — запасным вариантом.
+  // Выбор делает сам <picture>, проверять поддержку из JS не нужно.
+  // Обе версии лежат рядом и отличаются только расширением.
+  // <picture> выбирает формат сам, но предзагрузка соседних кадров идёт
+  // через new Image() — там выбирать некому, поэтому один раз спрашиваем
+  // у канваса, умеет ли браузер WebP.
+  const supportsWebp = (function () {
+    try {
+      return document.createElement('canvas')
+        .toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    } catch (e) { return false; }
+  })();
+
+  const picture = (src, attrs) =>
+    '<picture>' +
+      '<source type="image/webp" srcset="' + src.replace(/\.jpg$/, '.webp') + '">' +
+      '<img src="' + src + '" ' + attrs + '>' +
+    '</picture>';
+
+  /* ------------------------------------------------------------------ */
+  /* Блокировка прокрутки                                                */
+  /* ------------------------------------------------------------------ */
+
+  /*
+   * Раньше это был класс с overflow: hidden на body. Он не останавливал
+   * прокрутку (скроллится html), зато делал body скролл-контейнером: ломалась
+   * sticky-шапка и слетала позиция — после закрытия лайтбокса страницу
+   * выбрасывало в другое место.
+   * Здесь body фиксируется на текущей позиции и возвращается на неё же.
+   * Счётчик нужен потому, что замок просят двое — меню и лайтбокс, — и
+   * закрытие одного не должно отпускать страницу, пока открыт другой.
+   */
+  let lockY = 0;
+  let lockCount = 0;
+
+  function lockScroll() {
+    if (lockCount++) return;
+    lockY = window.scrollY;
+    // компенсируем ширину исчезающего скроллбара, иначе страница дёргается
+    const gap = window.innerWidth - document.documentElement.clientWidth;
+    const style = document.body.style;
+    style.position = 'fixed';
+    style.top = -lockY + 'px';
+    style.left = '0';
+    style.right = '0';
+    if (gap > 0) style.paddingRight = gap + 'px';
+  }
+
+  function unlockScroll() {
+    if (lockCount === 0 || --lockCount) return;
+    const style = document.body.style;
+    style.position = style.top = style.left = style.right = style.paddingRight = '';
+    // behavior: 'instant' обязателен: у html стоит scroll-behavior: smooth,
+    // и обычный scrollTo проигрывал бы возврат анимацией — страница уползала
+    // на глазах у того, кто просто закрыл лайтбокс.
+    window.scrollTo({ top: lockY, left: 0, behavior: 'instant' });
+  }
+
   /* ------------------------------------------------------------------ */
   /* Меню                                                                */
   /* ------------------------------------------------------------------ */
@@ -24,14 +89,15 @@
     const link = document.createElement('a');
     link.className = 'nav__link';
     link.href = '#' + section.id;
-    link.textContent = section.title;
+    // короткое имя: полные названия не помещаются в узкое меню
+    link.textContent = section.short || section.title;
     link.style.setProperty('--nav-accent', section.accent);
     link.dataset.target = section.id;
     nav.appendChild(link);
   });
 
   /* ------------------------------------------------------------------ */
-  /* Хиро: полоса превью по одному кадру на стиль                        */
+  /* Хиро: полоса превью и стек портретов                                */
   /* ------------------------------------------------------------------ */
 
   const flowOut = $('.flow__out');
@@ -43,11 +109,34 @@
     const li = document.createElement('li');
     li.innerHTML =
       '<a class="flow__chip" href="#' + section.id + '" style="--accent:' + section.accent + '">' +
-        '<img src="' + photo.thumb + '" alt="" width="' + photo.w + '" height="' + photo.h + '" loading="lazy" decoding="async">' +
-        '<span class="flow__chip-name">' + section.title + '</span>' +
+        picture(photo.thumb, 'alt="" width="' + photo.w + '" height="' + photo.h + '" loading="lazy" decoding="async"') +
+        '<span class="flow__chip-name">' + esc(section.short || section.title) + '</span>' +
       '</a>';
     flowOut.appendChild(li);
   });
+
+  // Веер из пяти кадров в правой колонке. --i — место в колоде, его крутит
+  // таймер ниже. Первый кадр грузим сразу: он попадает на первый экран.
+  const stack = $('.hero__stack');
+  const stackCards = [];
+
+  if (stack) {
+    GALLERY.forEach((section, i) => {
+      const photo = section.photos[0];
+      if (!photo) return;
+
+      const card = document.createElement('div');
+      card.className = 'hero__card';
+      card.style.setProperty('--i', i);
+      card.style.setProperty('--accent', section.accent);
+      card.innerHTML =
+        picture(photo.thumb, 'alt="" width="' + photo.w + '" height="' + photo.h + '"' +
+          (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') + ' decoding="async"') +
+        '<span class="hero__card-name">' + esc(section.short || section.title) + '</span>';
+      stack.appendChild(card);
+      stackCards.push(card);
+    });
+  }
 
   /* ------------------------------------------------------------------ */
   /* Бегущая строка                                                      */
@@ -55,10 +144,54 @@
 
   const marqueeTrack = $('.marquee__track');
   const marqueeHtml = GALLERY.map((s) =>
-    '<span class="marquee__item" style="--accent:' + s.accent + '">' + s.title + '</span>'
+    '<span class="marquee__item" style="--accent:' + s.accent + '">' + esc(s.title) + '</span>'
   ).join('');
   // Содержимое дублируется: трек уезжает ровно на половину и склейки не видно
   marqueeTrack.innerHTML = marqueeHtml + marqueeHtml;
+
+  /* ------------------------------------------------------------------ */
+  /* Исходник → результат                                                */
+  /* ------------------------------------------------------------------ */
+
+  // Раздела нет, пока в данных нет исходного снимка — см. COMPARE
+  // в gallery-data.js. Пустой блок лучше не показывать вовсе.
+  if (typeof COMPARE !== 'undefined' && COMPARE && COMPARE.before && COMPARE.after) {
+    const slot = $('#compare-slot');
+    const el = document.createElement('section');
+    el.className = 'compare';
+    el.id = 'compare';
+    el.setAttribute('aria-labelledby', 'compare-title');
+    el.innerHTML =
+      '<div class="wrap">' +
+        '<p class="eyebrow reveal">' + esc(COMPARE.tagline || 'Исходник и результат') + '</p>' +
+        '<h2 class="section-title reveal" id="compare-title">' + esc(COMPARE.title || 'Из обычного снимка') + '</h2>' +
+        '<div class="compare__grid reveal">' +
+          '<div>' +
+            '<div class="compare__viewer" style="--pos:50%">' +
+              picture(COMPARE.after.src, 'alt="' + esc(COMPARE.after.alt) + '"' +
+                ' width="' + COMPARE.after.w + '" height="' + COMPARE.after.h + '" decoding="async"') +
+              picture(COMPARE.before.src, 'class="compare__before" alt="' + esc(COMPARE.before.alt) + '"' +
+                ' width="' + COMPARE.before.w + '" height="' + COMPARE.before.h + '" decoding="async"') +
+              '<div class="compare__handle" aria-hidden="true"></div>' +
+              '<input class="compare__range" type="range" min="0" max="100" value="50" step="1"' +
+                ' aria-label="Сдвинуть границу между исходником и результатом">' +
+            '</div>' +
+            '<div class="compare__tags" aria-hidden="true">' +
+              '<span>' + esc(COMPARE.before.caption || 'Исходник') + '</span>' +
+              '<span>' + esc(COMPARE.after.caption || 'Результат') + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<p class="style__desc">' + esc(COMPARE.description || '') + '</p>' +
+        '</div>' +
+      '</div>';
+    slot.appendChild(el);
+
+    const viewer = $('.compare__viewer', el);
+    const range = $('.compare__range', el);
+    const move = () => viewer.style.setProperty('--pos', range.value + '%');
+    range.addEventListener('input', move);
+    move();
+  }
 
   /* ------------------------------------------------------------------ */
   /* Разделы-галереи                                                     */
@@ -89,9 +222,9 @@
     const tiles = section.photos.map((photo, i) =>
       '<li class="tile">' +
         '<button class="tile__btn" type="button" data-section="' + section.id + '" data-index="' + i + '"' +
-          ' aria-label="Открыть фото ' + (i + 1) + ' из ' + count + ', стиль «' + section.title + '»">' +
-          '<img src="' + photo.thumb + '" alt="' + photo.alt + '" width="' + photo.w + '" height="' + photo.h + '"' +
-            ' loading="lazy" decoding="async">' +
+          ' aria-label="Открыть фото ' + (i + 1) + ' из ' + count + ', стиль «' + esc(section.title) + '»">' +
+          picture(photo.thumb, 'alt="' + esc(photo.alt) + '" width="' + photo.w + '" height="' + photo.h + '"' +
+            ' loading="lazy" decoding="async"') +
           '<span class="tile__idx">' + String(i + 1).padStart(2, '0') + '</span>' +
         '</button>' +
       '</li>'
@@ -102,17 +235,101 @@
         '<header class="style__head reveal">' +
           '<span class="style__num" aria-hidden="true">' + section.num + '</span>' +
           '<div>' +
-            '<h2 class="style__title" id="' + section.id + '-title">' + section.title + '</h2>' +
-            '<p class="style__tagline">' + section.tagline + '</p>' +
+            '<h2 class="style__title" id="' + section.id + '-title">' + esc(section.title) + '</h2>' +
+            '<p class="style__tagline">' + esc(section.tagline) + '</p>' +
           '</div>' +
-          '<p class="style__desc">' + section.description + '</p>' +
+          '<p class="style__desc">' + esc(section.description) + '</p>' +
           '<p class="style__count">' + count + ' ' + plural(count, 'кадр', 'кадра', 'кадров') + '</p>' +
         '</header>' +
-        '<ul class="grid' + (isFeature ? ' grid--feature" style="--cols:' + count + '"' : '"') + '>' + tiles + '</ul>' +
+        // --cols нужен обеим раскладкам: он не даёт ряду растянуться шире,
+        // чем требует фактическое число кадров
+        '<ul class="grid' + (isFeature ? ' grid--feature' : '') + '" style="--cols:' + count + '">' + tiles + '</ul>' +
       '</div>';
 
     work.appendChild(el);
   });
+
+  /* ------------------------------------------------------------------ */
+  /* Пакеты                                                              */
+  /* ------------------------------------------------------------------ */
+
+  // Ссылка в мессенджер с заготовленным первым сообщением: владельцу сразу
+  // видно, о каком пакете речь, а человеку не надо придумывать, с чего начать.
+  function messengerUrl(kind, text) {
+    const c = CONTACT[kind];
+    return c.url + '?text=' + encodeURIComponent(text);
+  }
+
+  const packSlot = $('.packages__slot');
+
+  if (packSlot && typeof PACKAGES !== 'undefined' && PACKAGES.length) {
+    // Заглушки видно по нулям в цене — пока они на месте, над блоком висит
+    // напоминание, чтобы прайс с нулями не уехал в публикацию незамеченным.
+    const isDraft = PACKAGES.some((p) => /0\s*000/.test(p.price));
+
+    const cards = PACKAGES.map((p) => {
+      const href = messengerUrl('telegram', CONTACT.greetingForPackage(p.name));
+      return '<article class="pack reveal' + (p.featured ? ' pack--featured' : '') + '">' +
+        (p.featured ? '<span class="pack__badge">Чаще всего берут</span>' : '') +
+        '<div>' +
+          '<h3 class="pack__name">' + esc(p.name) + '</h3>' +
+          '<p class="pack__note">' + esc(p.note) + '</p>' +
+        '</div>' +
+        '<div>' +
+          '<p class="pack__price">' + esc(p.price) + '</p>' +
+          '<p class="pack__lead">Срок: ' + esc(p.lead) + '</p>' +
+        '</div>' +
+        '<ul class="pack__items">' +
+          p.items.map((i) => '<li>' + esc(i) + '</li>').join('') +
+        '</ul>' +
+        '<a class="btn btn--solid" href="' + href + '" target="_blank" rel="noopener noreferrer">' +
+          'Обсудить пакет</a>' +
+      '</article>';
+    }).join('');
+
+    packSlot.innerHTML =
+      (isDraft
+        ? '<p class="packages__draft reveal"><b>Черновик:</b> цены и сроки здесь — заглушки. ' +
+          'Замени их в <code>js/gallery-data.js</code>, в массиве <code>PACKAGES</code>, ' +
+          'и эта плашка исчезнет сама.</p>'
+        : '') +
+      '<div class="packages__grid">' + cards + '</div>';
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Вопросы                                                             */
+  /* ------------------------------------------------------------------ */
+
+  // Сами вопросы лежат в index.html — так они видны поисковику и работают
+  // без JS. Отсюда только разметка FAQPage: собираем её из тех же элементов,
+  // поэтому текст в выдаче и текст на странице разойтись не могут.
+  const faqItems = Array.from(document.querySelectorAll('.faq__item'));
+
+  if (faqItems.length) {
+    const ld = document.createElement('script');
+    ld.type = 'application/ld+json';
+    ld.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqItems.map((item) => ({
+        '@type': 'Question',
+        name: item.querySelector('.faq__q').textContent.trim(),
+        acceptedAnswer: { '@type': 'Answer', text: item.querySelector('.faq__a').textContent.trim() }
+      }))
+    });
+    document.head.appendChild(ld);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Контакты и липкая кнопка                                            */
+  /* ------------------------------------------------------------------ */
+
+  if (typeof CONTACT !== 'undefined') {
+    document.querySelectorAll('[data-contact]').forEach((link) => {
+      const kind = link.dataset.contact;
+      if (CONTACT[kind]) link.href = messengerUrl(kind, CONTACT.greeting);
+    });
+  }
 
   /* ------------------------------------------------------------------ */
   /* Появление блоков при скролле                                        */
@@ -154,17 +371,28 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Прогресс скролла и активный пункт меню                              */
+  /* Прогресс скролла, активный пункт меню, липкая кнопка                */
   /* ------------------------------------------------------------------ */
 
   const header = $('.site-header');
   const progress = $('.site-header__progress');
+  const dock = $('#cta-dock');
+  const hero = $('.hero');
   const navLinks = Array.from(nav.querySelectorAll('.nav__link'));
-  const sections = GALLERY.map((s) => document.getElementById(s.id));
+
+  // Кроме галерейных разделов считаем и те, что идут после них: иначе,
+  // докрутив до «Как это работает», пользователь видел подсвеченным
+  // последний стиль, будто он всё ещё в нём.
+  const sections = GALLERY.map((s) => document.getElementById(s.id))
+    .concat(['how', 'packages', 'faq', 'contact'].map((id) => document.getElementById(id)));
+
+  const packagesEl = document.getElementById('packages');
 
   let sectionTops = [];
   let maxScroll = 1;
   let headerHeight = 0;
+  let heroBottom = 0;
+  let packagesRange = [Infinity, Infinity];
 
   // Все замеры делаются заранее, чтобы update() на скролле был чистой
   // арифметикой: тогда его можно звать напрямую, без throttle через
@@ -175,6 +403,11 @@
     headerHeight = header.offsetHeight;
     sectionTops = sections.map((el) => (el ? el.getBoundingClientRect().top + window.scrollY : Infinity));
     maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    heroBottom = hero ? hero.getBoundingClientRect().bottom + window.scrollY : 0;
+    if (packagesEl) {
+      const r = packagesEl.getBoundingClientRect();
+      packagesRange = [r.top + window.scrollY, r.bottom + window.scrollY];
+    }
     update();
   }
 
@@ -190,6 +423,18 @@
     }
 
     navLinks.forEach((link, i) => link.classList.toggle('is-active', i === activeIndex));
+
+    // Кнопка появляется, когда хиро уехало, и прячется над футером,
+    // чтобы не закрывать контакты — они там и так крупные.
+    if (dock) {
+      const footerTop = sectionTops[sectionTops.length - 1];
+      const bottom = y + window.innerHeight;
+      // В пакетах кнопка молчит: у каждой карточки своя, и плавающая
+      // накрывала бы её собой.
+      const overPackages = bottom > packagesRange[0] + 200 && y < packagesRange[1];
+      dock.classList.toggle('is-shown',
+        y > heroBottom && bottom < footerTop + 120 && !overPackages);
+    }
   }
 
   window.addEventListener('scroll', update, { passive: true });
@@ -206,9 +451,10 @@
   const burger = $('.burger');
 
   function setMenu(open) {
+    if (open === nav.classList.contains('is-open')) return;
     nav.classList.toggle('is-open', open);
     burger.setAttribute('aria-expanded', String(open));
-    document.body.classList.toggle('is-locked', open);
+    if (open) lockScroll(); else unlockScroll();
   }
 
   burger.addEventListener('click', () => setMenu(!nav.classList.contains('is-open')));
@@ -220,6 +466,7 @@
 
   const lightbox = $('#lightbox');
   const lbImg = $('.lightbox__img', lightbox);
+  const lbSource = $('.lightbox__source', lightbox);
   const lbStyle = $('.lightbox__style', lightbox);
   const lbCounter = $('.lightbox__counter', lightbox);
   const lbClose = $('.lightbox__close', lightbox);
@@ -236,6 +483,7 @@
     currentIndex = (index + photos.length) % photos.length;
     const photo = photos[currentIndex];
 
+    if (lbSource) lbSource.srcset = photo.full.replace(/\.jpg$/, '.webp');
     lbImg.src = photo.full;
     lbImg.alt = photo.alt;
     lbImg.width = photo.w;
@@ -246,7 +494,10 @@
     // соседние кадры подгружаются заранее — листание идёт без задержки
     [currentIndex - 1, currentIndex + 1].forEach((i) => {
       const neighbour = photos[(i + photos.length) % photos.length];
-      if (neighbour && neighbour !== photo) new Image().src = neighbour.full;
+      if (neighbour && neighbour !== photo) {
+        const pre = new Image();
+        pre.src = supportsWebp ? neighbour.full.replace(/\.jpg$/, '.webp') : neighbour.full;
+      }
     });
 
     const single = photos.length < 2;
@@ -263,18 +514,15 @@
     show(index);
 
     lightbox.hidden = false;
-    // компенсируем ширину исчезающего скроллбара, иначе страница дёргается
-    const gap = window.innerWidth - document.documentElement.clientWidth;
-    if (gap > 0) document.body.style.paddingRight = gap + 'px';
-    document.body.classList.add('is-locked');
+    lockScroll();
     lbClose.focus();
   }
 
   function closeLightbox() {
     lightbox.hidden = true;
     lbImg.removeAttribute('src');
-    document.body.classList.remove('is-locked');
-    document.body.style.paddingRight = '';
+    if (lbSource) lbSource.removeAttribute('srcset');
+    unlockScroll();
     if (lastFocused) lastFocused.focus();
     lastFocused = null;
   }
@@ -335,6 +583,79 @@
       show(dx < 0 ? currentIndex + 1 : currentIndex - 1);
     }
   }, { passive: true });
+
+  /* ------------------------------------------------------------------ */
+  /* Движение: параллакс, колода, магнитные кнопки                       */
+  /* ------------------------------------------------------------------ */
+
+  if (!prefersReducedMotion) {
+    // Свечения и знак чуть уводит за курсором. Считаем в rAF и только когда
+    // указатель действительно двигался: пустых кадров не крутим.
+    const glowA = $('.hero__glow--a');
+    const glowB = $('.hero__glow--b');
+    const heroLogo = $('.hero__logo');
+
+    if (hero && window.matchMedia('(pointer: fine)').matches) {
+      let px = 0, py = 0, queued = false;
+
+      const apply = () => {
+        queued = false;
+        if (glowA) glowA.style.translate = (px * 26) + 'px ' + (py * 18) + 'px';
+        if (glowB) glowB.style.translate = (px * -32) + 'px ' + (py * -20) + 'px';
+        if (heroLogo) heroLogo.style.translate =
+          'calc(-50% + ' + (px * 14) + 'px) calc(-50% + ' + (py * 12) + 'px)';
+      };
+
+      window.addEventListener('mousemove', (e) => {
+        // -0.5…0.5 от центра окна
+        px = e.clientX / window.innerWidth - .5;
+        py = e.clientY / window.innerHeight - .5;
+        if (!queued) { queued = true; requestAnimationFrame(apply); }
+      }, { passive: true });
+    }
+
+    // Колода портретов: верхний кадр уходит в конец. Крутим только пока
+    // хиро на экране — фоновая анимация впустую греет батарею.
+    if (stackCards.length > 1) {
+      let top = 0;
+      let timer = null;
+
+      const rotate = () => {
+        top = (top + 1) % stackCards.length;
+        stackCards.forEach((card, i) => {
+          card.style.setProperty('--i', (i - top + stackCards.length) % stackCards.length);
+        });
+      };
+
+      const startDeck = () => { if (!timer) timer = setInterval(rotate, 3600); };
+      const stopDeck = () => { clearInterval(timer); timer = null; };
+
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver((entries) => {
+          entries[0].isIntersecting ? startDeck() : stopDeck();
+        }, { threshold: .15 }).observe(stack);
+      } else {
+        startDeck();
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        document.hidden ? stopDeck() : startDeck();
+      });
+    }
+
+    // Крупные кнопки слегка тянутся к курсору
+    if (window.matchMedia('(pointer: fine)').matches) {
+      document.querySelectorAll('.btn--lg').forEach((btn) => {
+        btn.addEventListener('mousemove', (e) => {
+          const r = btn.getBoundingClientRect();
+          const dx = (e.clientX - r.left - r.width / 2) / r.width;
+          const dy = (e.clientY - r.top - r.height / 2) / r.height;
+          btn.style.translate = (dx * 10) + 'px ' + (dy * 6) + 'px';
+        });
+        btn.addEventListener('mouseleave', () => { btn.style.translate = ''; });
+      });
+    }
+  }
 
   /* ------------------------------------------------------------------ */
   /* Мелочи                                                              */
