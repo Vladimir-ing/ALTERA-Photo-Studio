@@ -170,8 +170,12 @@
             '<div class="compare__viewer" style="--pos:50%">' +
               picture(COMPARE.after.src, 'alt="' + esc(COMPARE.after.alt) + '"' +
                 ' width="' + COMPARE.after.w + '" height="' + COMPARE.after.h + '" decoding="async"') +
-              picture(COMPARE.before.src, 'class="compare__before" alt="' + esc(COMPARE.before.alt) + '"' +
-                ' width="' + COMPARE.before.w + '" height="' + COMPARE.before.h + '" decoding="async"') +
+              // Исходник — обычный <img>, а не <picture>: WebP-версии у него может
+              // не быть, а <source> с несуществующим файлом не откатывается
+              // на <img>, а просто ломает картинку.
+              '<img class="compare__before" src="' + esc(COMPARE.before.src) + '"' +
+                ' alt="' + esc(COMPARE.before.alt) + '"' +
+                ' width="' + COMPARE.before.w + '" height="' + COMPARE.before.h + '" decoding="async">' +
               '<div class="compare__handle" aria-hidden="true"></div>' +
               '<input class="compare__range" type="range" min="0" max="100" value="50" step="1"' +
                 ' aria-label="Сдвинуть границу между исходником и результатом">' +
@@ -191,6 +195,11 @@
     const move = () => viewer.style.setProperty('--pos', range.value + '%');
     range.addEventListener('input', move);
     move();
+
+    // Если исходника ещё нет в assets/img/source/, раздел убирает себя сам.
+    // Так данные можно заполнить заранее, а файл дослать позже: до этого
+    // на странице просто нет блока, а не битая картинка во весь экран.
+    $('.compare__before', el).addEventListener('error', () => el.remove());
   }
 
   /* ------------------------------------------------------------------ */
@@ -263,7 +272,7 @@
   const priceSlot = $('.packages__slot');
 
   if (priceSlot && typeof PRICING !== 'undefined' && PRICING) {
-    const href = messengerUrl('telegram', CONTACT.greeting);
+    const href = CONTACT.channel ? CONTACT.channel.url : messengerUrl('telegram', CONTACT.greeting);
 
     priceSlot.innerHTML =
       '<div class="price reveal">' +
@@ -323,8 +332,25 @@
   if (typeof CONTACT !== 'undefined') {
     document.querySelectorAll('[data-contact]').forEach((link) => {
       const kind = link.dataset.contact;
-      if (CONTACT[kind]) link.href = messengerUrl(kind, CONTACT.greeting);
+      if (!CONTACT[kind]) return;
+      // В канал сообщение не отправить — параметр ?text= там только мусор
+      link.href = kind === 'channel'
+        ? CONTACT.channel.url
+        : messengerUrl(kind, CONTACT.greeting);
     });
+
+    // Кнопки призыва к действию ведут в канал. Адрес живёт в одном месте —
+    // в CONTACT, — поэтому проставляется отсюда, а не зашит в разметку.
+    // В разметке они остаются якорями на #contact: если JS не выполнится,
+    // человек попадёт в блок контактов и всё равно сможет написать.
+    if (CONTACT.channel) {
+      [$('#cta-header'), $('#cta-dock')].forEach((btn) => {
+        if (!btn) return;
+        btn.href = CONTACT.channel.url;
+        btn.target = '_blank';
+        btn.rel = 'noopener noreferrer';
+      });
+    }
   }
 
   /* ------------------------------------------------------------------ */
