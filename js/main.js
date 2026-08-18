@@ -280,6 +280,16 @@
         '<div class="price__main">' +
           '<p class="price__value">' + esc(PRICING.price) + '</p>' +
           '<p class="price__unit">' + esc(PRICING.unit) + '</p>' +
+          // Доплата необязательна: нет PRICING.extra — второй строки нет
+          (PRICING.extra
+            ? '<div class="price__extra">' +
+                '<p class="price__extra-sum">' + esc(PRICING.extra.price) + '</p>' +
+                '<p class="price__extra-unit">' + esc(PRICING.extra.unit) + '</p>' +
+                (PRICING.extra.note
+                  ? '<p class="price__extra-note">' + esc(PRICING.extra.note) + '</p>'
+                  : '') +
+              '</div>'
+            : '') +
           '<p class="price__meta">' +
             'Срок: ' + esc(PRICING.lead) + '<br>' + esc(PRICING.shots) +
           '</p>' +

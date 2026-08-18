@@ -1216,6 +1216,40 @@ button {
   color: var(--accent);
 }
 
+/* Доплата — вторая по значимости строка. Градиент остаётся приметой главной
+   цены: если залить им обе суммы, они начнут спорить за внимание. */
+.price__extra {
+  margin-top: 1.2rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.price__extra-sum {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.4rem, 1.1rem + .9vw, 1.8rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--paper);
+}
+
+.price__extra-unit {
+  margin-top: .25rem;
+  font-size: .74rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.price__extra-note {
+  margin-top: .5rem;
+  max-width: 34ch;
+  font-size: .85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
 .price__meta {
   margin: 1.1rem 0 1.6rem;
   color: var(--muted);
