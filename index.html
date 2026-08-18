@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>ALTERA — AI-фотосессия и новая визуальная идентичность</title>
+<meta name="description" content="ALTERA создаёт персональные AI-портреты в пяти стилях: деловой, editorial, cinematic, casual и fantasy. Без студии, сложной подготовки и долгой съёмки.">
+<meta name="theme-color" content="#0A0611">
+<link rel="canonical" href="https://vladimir-ing.github.io/ALTERA/">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="ALTERA">
+<meta property="og:title" content="ALTERA — AI Identity Studio">
+<meta property="og:description" content="Одна внешность — пять образов. Персональные AI-портреты для бизнеса, соцсетей и личного бренда.">
+<!-- og:image и og:url должны быть абсолютными: мессенджеры не умеют достраивать относительные пути -->
+<meta property="og:image" content="https://vladimir-ing.github.io/ALTERA/assets/og-cover.jpg">
+<meta property="og:image:alt" content="Пять AI-портретов ALTERA в разных визуальных стилях">
+<meta property="og:url" content="https://vladimir-ing.github.io/ALTERA/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ALTERA — AI Identity Studio">
+<meta name="twitter:description" content="Персональные AI-портреты для бизнеса, соцсетей и личного бренда.">
+<meta name="twitter:image" content="https://vladimir-ing.github.io/ALTERA/assets/og-cover.jpg">
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#work">Перейти к работам</a>
+
+<div class="grain" aria-hidden="true"></div>
+
+<header class="site-header" id="top">
+  <div class="site-header__bar">
+    <a class="logo" href="#top" aria-label="На главную">
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__text">ALTERA<span class="logo__thin">AI STUDIO</span></span>
+    </a>
+
+    <nav class="nav" id="site-nav" aria-label="Разделы портфолио">
+      <!-- пункты меню генерируются из gallery-data.js -->
+    </nav>
+
+    <div class="site-header__actions">
+      <a class="btn btn--solid" href="#contact">Заказать</a>
+      <button class="burger" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Меню">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+  <div class="site-header__progress" aria-hidden="true"><i></i></div>
+</header>
+
+<main>
+
+  <!-- ХИРО -->
+  <section class="hero">
+    <div class="hero__glow hero__glow--a" aria-hidden="true"></div>
+    <div class="hero__glow hero__glow--b" aria-hidden="true"></div>
+
+    <div class="wrap hero__inner">
+      <p class="eyebrow reveal">AI Identity Studio · Krea&nbsp;AI + FLUX</p>
+
+      <h1 class="hero__title reveal">
+        <span>Одна внешность —</span>
+        <span class="hero__accent">пять образов</span>
+      </h1>
+
+      <p class="hero__lead reveal">
+        ALTERA превращает обычные снимки в цельную визуальную историю. Без студии,
+        сложной подготовки и свободного дня: получаешь персональные портреты для бизнеса,
+        соцсетей и личного бренда. Все работы ниже созданы этим же способом.
+      </p>
+
+      <div class="hero__actions reveal">
+        <a class="btn btn--solid btn--lg" href="#contact">Создать свои образы</a>
+        <a class="btn btn--ghost btn--lg" href="#work">Смотреть работы</a>
+      </div>
+
+      <div class="hero__flow reveal" aria-hidden="true">
+        <div class="flow__source">
+          <div class="flow__source-icon"></div>
+          <span>10–15 твоих фото</span>
+        </div>
+        <div class="flow__arrow"><span></span></div>
+        <ul class="flow__out">
+          <!-- превью стилей генерируются из gallery-data.js -->
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- БЕГУЩАЯ СТРОКА -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <!-- содержимое генерируется из gallery-data.js -->
+    </div>
+  </div>
+
+  <!-- РАЗДЕЛЫ-ГАЛЕРЕИ -->
+  <div id="work">
+    <!-- пять секций генерируются из gallery-data.js -->
+  </div>
+
+  <!-- КАК ЭТО РАБОТАЕТ -->
+  <section class="how" id="how">
+    <div class="wrap">
+      <p class="eyebrow reveal">Как это работает</p>
+      <h2 class="section-title reveal">Три шага<br>до новой версии себя</h2>
+
+      <ol class="steps">
+        <li class="step reveal">
+          <span class="step__num">01</span>
+          <h3 class="step__title">Отправляешь исходники</h3>
+          <p>10–15 обычных снимков с телефона: разные ракурсы и освещение, лицо хорошо видно. Ретушь и специальная подготовка не нужны.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__num">02</span>
+          <h3 class="step__title">Создаём стиль</h3>
+          <p>Настраиваем AI-модель под твою внешность, собираем образы в выбранных направлениях и отбираем только сильные кадры.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__num">03</span>
+          <h3 class="step__title">Получаешь результат</h3>
+          <p>Готовый набор в высоком разрешении — для аватара, резюме, соцсетей, сайта и печати. Правки по выбранным кадрам входят в работу.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+</main>
+
+<!-- ФУТЕР / КОНТАКТЫ -->
+<footer class="site-footer" id="contact">
+  <div class="wrap">
+    <div class="footer__cta reveal">
+      <h2 class="footer__title">Создадим<br>твою ALTERA</h2>
+      <p class="footer__lead">Напиши удобным способом — обсудим задачу, стили, сроки и исходные фотографии.</p>
+    </div>
+
+    <ul class="contacts reveal">
+      <li>
+        <a class="contact" href="https://t.me/VlV_7777" target="_blank" rel="noopener noreferrer">
+          <span class="contact__label">Telegram</span>
+          <span class="contact__value">@VlV_7777</span>
+        </a>
+      </li>
+      <li>
+        <!-- wa.me требует номер без плюса, пробелов и дефисов -->
+        <a class="contact" href="https://wa.me/79138317777" target="_blank" rel="noopener noreferrer">
+          <span class="contact__label">WhatsApp</span>
+          <span class="contact__value">+7 913 831-77-77</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="footer__bottom">
+      <span>© <span id="year">2026</span> ALTERA · AI Identity Studio</span>
+      <span>Все портреты на странице сгенерированы нейросетью</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ЛАЙТБОКС -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фото" hidden>
+  <button class="lightbox__close" type="button" aria-label="Закрыть (Esc)"></button>
+  <button class="lightbox__nav lightbox__nav--prev" type="button" aria-label="Предыдущее фото"></button>
+  <button class="lightbox__nav lightbox__nav--next" type="button" aria-label="Следующее фото"></button>
+
+  <figure class="lightbox__figure">
+    <img class="lightbox__img" alt="" width="848" height="1264">
+    <figcaption class="lightbox__caption">
+      <span class="lightbox__style"></span>
+      <span class="lightbox__counter"></span>
+    </figcaption>
+  </figure>
+</div>
+
+<script src="js/gallery-data.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

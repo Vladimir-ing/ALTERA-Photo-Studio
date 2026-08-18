@@ -1,0 +1,92 @@
+/*
+ * Данные галереи. Разметка разделов собирается из этого массива в main.js.
+ *
+ * Чтобы ДОБАВИТЬ ФОТО:
+ *   1. положи исходник в нужную подпапку источника,
+ *   2. запусти  python tools/optimize_images.py
+ *   3. скопируй напечатанный скриптом фрагмент в поле photos нужного раздела.
+ *
+ * Отклонённые кадры лежат в подпапках «_не вошли» рядом с исходниками —
+ * чтобы вернуть кадр, перетащи файл на уровень выше и перезапусти скрипт.
+ *
+ * Раздел с 4+ фото рисуется плотной мелкой сеткой, с 2-3 фото — крупными плитками.
+ * Переключение автоматическое, ничего править не нужно.
+ */
+
+const GALLERY = [
+  {
+    id: 'business',
+    num: '01',
+    title: 'Деловой портрет',
+    tagline: 'LinkedIn · сайт компании · пресс-релиз',
+    description:
+      'Ровный свет, спокойная уверенность в кадре: студийный хедшот на нейтральном фоне и кадры за рабочим столом. Портрет, который не стыдно поставить первым в профиль и отправить в пресс-службу.',
+    accent: '#3B6BFF',
+    photos: [
+      { thumb: 'assets/img/business/thumb-01.jpg', full: 'assets/img/business/full-01.jpg', w: 848, h: 1264, alt: 'Деловой портрет: тёмно-синий костюм и белая рубашка без галстука, открытая улыбка на сером фоне' },
+      { thumb: 'assets/img/business/thumb-02.jpg', full: 'assets/img/business/full-02.jpg', w: 848, h: 1264, alt: 'Деловой портрет: за рабочим столом у панорамного окна с видом на город' },
+      { thumb: 'assets/img/business/thumb-03.jpg', full: 'assets/img/business/full-03.jpg', w: 848, h: 1264, alt: 'Деловой портрет: кабинет в тёплых тонах, работа с ежедневником' },
+      { thumb: 'assets/img/business/thumb-04.jpg', full: 'assets/img/business/full-04.jpg', w: 848, h: 1264, alt: 'Деловой портрет: костюм с галстуком, классический студийный хедшот для LinkedIn' }
+    ]
+  },
+  {
+    id: 'editorial',
+    num: '02',
+    title: 'Editorial / Glossy',
+    tagline: 'обложка · промо · афиша',
+    description:
+      'Жёсткий контраст, глубокие тени, цветные гелевые светофильтры и характер вместо вежливой улыбки. Кадр в логике журнальной обложки — цепляет взгляд в ленте с первой секунды.',
+    accent: '#FF2D9B',
+    photos: [
+      { thumb: 'assets/img/editorial/thumb-01.jpg', full: 'assets/img/editorial/full-01.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: чёрная рубашка, наклон головы, контровой свет на чёрном фоне' },
+      { thumb: 'assets/img/editorial/thumb-02.jpg', full: 'assets/img/editorial/full-02.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: красно-синий гелевый свет, руки у шеи, взгляд вверх' },
+      { thumb: 'assets/img/editorial/thumb-03.jpg', full: 'assets/img/editorial/full-03.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: чёрная водолазка, скрещённые руки, глубокие тени' },
+      { thumb: 'assets/img/editorial/thumb-04.jpg', full: 'assets/img/editorial/full-04.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: рука у подбородка, часы на запястье, журнальная подача' }
+    ]
+  },
+  {
+    id: 'cinematic',
+    num: '03',
+    title: 'Cinematic',
+    tagline: 'атмосферный кадр как из фильма',
+    description:
+      'Закатный свет, неон под дождём, холодный индустриальный интерьер. Не портрет, а сцена — с настроением и ощущением, что кадр вырезан из фильма.',
+    accent: '#FF7A18',
+    photos: [
+      { thumb: 'assets/img/cinematic/thumb-01.jpg', full: 'assets/img/cinematic/full-01.jpg', w: 848, h: 1264, alt: 'Кинематографичный портрет: закатный свет на городской улице, огни в расфокусе' },
+      { thumb: 'assets/img/cinematic/thumb-02.jpg', full: 'assets/img/cinematic/full-02.jpg', w: 848, h: 1264, alt: 'Кинематографичный портрет: заброшенный цех, холодная зелёно-серая гамма' },
+      { thumb: 'assets/img/cinematic/thumb-03.jpg', full: 'assets/img/cinematic/full-03.jpg', w: 848, h: 1264, alt: 'Кинематографичный портрет: ночная улица под дождём, неоновые вывески в синем и розовом' },
+      { thumb: 'assets/img/cinematic/thumb-04.jpg', full: 'assets/img/cinematic/full-04.jpg', w: 848, h: 1264, alt: 'Кинематографичный портрет: сумерки, тёплая неоновая вывеска и боке городских огней' }
+    ]
+  },
+  {
+    id: 'casual',
+    num: '04',
+    title: 'Casual Lifestyle',
+    tagline: 'соцсети · знакомства · личный блог',
+    description:
+      'Живая мимика и мягкий дневной свет: осенний парк, окно дома, берег моря, веранда кафе. Ощущение случайного кадра, который сделал друг, — но с качеством студийной съёмки.',
+    accent: '#00E08F',
+    photos: [
+      { thumb: 'assets/img/casual/thumb-01.jpg', full: 'assets/img/casual/full-01.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: осенний парк, жёлтая листва в расфокусе, серый свитшот' },
+      { thumb: 'assets/img/casual/thumb-02.jpg', full: 'assets/img/casual/full-02.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: у окна дома, мягкий дневной свет, искренняя улыбка' },
+      { thumb: 'assets/img/casual/thumb-03.jpg', full: 'assets/img/casual/full-03.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: берег моря, светлая рубашка, спокойный горизонт' },
+      { thumb: 'assets/img/casual/thumb-04.jpg', full: 'assets/img/casual/full-04.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: веранда кафе, джинсовая рубашка, широкая улыбка' }
+    ]
+  },
+  {
+    id: 'fantasy',
+    num: '05',
+    title: 'Fantasy / Арт',
+    tagline: 'аватар · обложка · подарок',
+    description:
+      'Четыре разных мира: стимпанк-город, снежные вершины, древняя библиотека, туманный лес. Стиль для тех, кому нужен не портрет, а образ — на аватар, обложку или в подарок.',
+    accent: '#A855F7',
+    photos: [
+      { thumb: 'assets/img/fantasy/thumb-01.jpg', full: 'assets/img/fantasy/full-01.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: стимпанк-город, газовые фонари, кожаная портупея' },
+      { thumb: 'assets/img/fantasy/thumb-02.jpg', full: 'assets/img/fantasy/full-02.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: снежные горы, меховой воротник, холодная синяя гамма' },
+      { thumb: 'assets/img/fantasy/thumb-03.jpg', full: 'assets/img/fantasy/full-03.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: древняя библиотека, свитки на полках, красно-охристый плащ' },
+      { thumb: 'assets/img/fantasy/thumb-04.jpg', full: 'assets/img/fantasy/full-04.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: туманный лес, чёрная броня с золотым орнаментом' }
+    ]
+  }
+];
