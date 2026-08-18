@@ -250,7 +250,7 @@
   });
 
   /* ------------------------------------------------------------------ */
-  /* Пакеты                                                              */
+  /* Цена                                                                */
   /* ------------------------------------------------------------------ */
 
   // Ссылка в мессенджер с заготовленным первым сообщением: владельцу сразу
@@ -260,40 +260,36 @@
     return c.url + '?text=' + encodeURIComponent(text);
   }
 
-  const packSlot = $('.packages__slot');
+  const priceSlot = $('.packages__slot');
 
-  if (packSlot && typeof PACKAGES !== 'undefined' && PACKAGES.length) {
-    // Заглушки видно по нулям в цене — пока они на месте, над блоком висит
-    // напоминание, чтобы прайс с нулями не уехал в публикацию незамеченным.
-    const isDraft = PACKAGES.some((p) => /0\s*000/.test(p.price));
+  if (priceSlot && typeof PRICING !== 'undefined' && PRICING) {
+    // Заглушки видно по нулям. Пока хоть одна на месте, над блоком висит
+    // напоминание — чтобы незаполненное не уехало в публикацию незамеченным.
+    const draft = [PRICING.price, PRICING.lead, PRICING.shots]
+      .filter((v) => /(^|[^\d])0{2,}([^\d]|$)|0\s*[–-]\s*0/.test(String(v)));
 
-    const cards = PACKAGES.map((p) => {
-      const href = messengerUrl('telegram', CONTACT.greetingForPackage(p.name));
-      return '<article class="pack reveal' + (p.featured ? ' pack--featured' : '') + '">' +
-        (p.featured ? '<span class="pack__badge">Чаще всего берут</span>' : '') +
-        '<div>' +
-          '<h3 class="pack__name">' + esc(p.name) + '</h3>' +
-          '<p class="pack__note">' + esc(p.note) + '</p>' +
-        '</div>' +
-        '<div>' +
-          '<p class="pack__price">' + esc(p.price) + '</p>' +
-          '<p class="pack__lead">Срок: ' + esc(p.lead) + '</p>' +
-        '</div>' +
-        '<ul class="pack__items">' +
-          p.items.map((i) => '<li>' + esc(i) + '</li>').join('') +
-        '</ul>' +
-        '<a class="btn btn--solid" href="' + href + '" target="_blank" rel="noopener noreferrer">' +
-          'Обсудить пакет</a>' +
-      '</article>';
-    }).join('');
+    const href = messengerUrl('telegram', CONTACT.greeting);
 
-    packSlot.innerHTML =
-      (isDraft
-        ? '<p class="packages__draft reveal"><b>Черновик:</b> цены и сроки здесь — заглушки. ' +
-          'Замени их в <code>js/gallery-data.js</code>, в массиве <code>PACKAGES</code>, ' +
+    priceSlot.innerHTML =
+      (draft.length
+        ? '<p class="packages__draft reveal"><b>Черновик:</b> срок и количество кадров ещё не заполнены. ' +
+          'Замени нули в <code>js/gallery-data.js</code>, в объекте <code>PRICING</code>, ' +
           'и эта плашка исчезнет сама.</p>'
         : '') +
-      '<div class="packages__grid">' + cards + '</div>';
+      '<div class="price reveal">' +
+        '<div class="price__main">' +
+          '<p class="price__value">' + esc(PRICING.price) + '</p>' +
+          '<p class="price__unit">' + esc(PRICING.unit) + '</p>' +
+          '<p class="price__meta">' +
+            'Срок: ' + esc(PRICING.lead) + '<br>' + esc(PRICING.shots) +
+          '</p>' +
+          '<a class="btn btn--solid btn--lg" href="' + href + '" target="_blank" rel="noopener noreferrer">' +
+            'Обсудить фотосессию</a>' +
+        '</div>' +
+        '<ul class="price__items">' +
+          PRICING.items.map((i) => '<li>' + esc(i) + '</li>').join('') +
+        '</ul>' +
+      '</div>';
   }
 
   /* ------------------------------------------------------------------ */
