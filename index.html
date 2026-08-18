@@ -24,6 +24,11 @@
 <meta name="twitter:image" content="https://vladimir-ing.github.io/ALTERA-Photo-Studio/assets/og-cover.jpg">
 
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+
+<!-- знак нужен в первую же секунду: и в шапке, и на заставке -->
+<link rel="preload" href="assets/logo/altera-mark.svg" as="image" type="image/svg+xml">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,12 +40,47 @@
 
 <a class="skip-link" href="#work">Перейти к работам</a>
 
+<!-- Заставка скрыта в разметке и показывается только скриптом: без JS
+     и для поисковика её просто нет, страница ничем не перекрыта. -->
+<div class="preloader" id="preloader" hidden aria-hidden="true">
+  <img class="preloader__mark" src="assets/logo/altera-mark.svg" alt="" width="512" height="512">
+</div>
+<script>
+/*
+ * Заставка живёт отдельным встроенным скриптом, а не в main.js, по двум причинам.
+ * Во-первых, здесь она включается прямо во время разбора страницы — иначе
+ * успел бы мелькнуть уже отрисованный сайт. Во-вторых, она сама себя снимает:
+ * даже если main.js упадёт или не загрузится, страница не останется закрытой.
+ */
+(function () {
+  var pre = document.getElementById('preloader');
+  if (!pre) return;
+  try {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // один раз за сессию: возвраты назад и переходы по якорям её не повторяют
+    if (sessionStorage.getItem('altera-intro')) return;
+    sessionStorage.setItem('altera-intro', '1');
+  } catch (e) { return; }   // приватный режим без sessionStorage — просто пропускаем
+
+  pre.hidden = false;
+  var done = false;
+  function finish() {
+    if (done) return;
+    done = true;
+    pre.classList.add('is-done');
+    setTimeout(function () { pre.hidden = true; }, 500);
+  }
+  setTimeout(finish, 700);
+  setTimeout(finish, 1400);   // страховка на случай зависшего таймера выше
+})();
+</script>
+
 <div class="grain" aria-hidden="true"></div>
 
 <header class="site-header" id="top">
   <div class="site-header__bar">
     <a class="logo" href="#top" aria-label="На главную">
-      <span class="logo__mark" aria-hidden="true"></span>
+      <img class="logo__mark" src="assets/logo/altera-mark.svg" alt="" width="512" height="512">
       <span class="logo__text">ALTERA<span class="logo__thin">AI STUDIO</span></span>
     </a>
 
@@ -64,35 +104,45 @@
   <section class="hero">
     <div class="hero__glow hero__glow--a" aria-hidden="true"></div>
     <div class="hero__glow hero__glow--b" aria-hidden="true"></div>
+    <!-- Знак во всю секцию: и текст, и портреты лежат поверх него -->
+    <img class="hero__logo" src="assets/logo/altera-mark.svg" alt="" width="512" height="512" aria-hidden="true">
 
     <div class="wrap hero__inner">
-      <p class="eyebrow reveal">AI Identity Studio · Krea&nbsp;AI + FLUX</p>
+      <div class="hero__copy">
+        <p class="eyebrow reveal">AI Identity Studio · Krea&nbsp;AI + FLUX</p>
 
-      <h1 class="hero__title reveal">
-        <span>Одна внешность —</span>
-        <span class="hero__accent">пять образов</span>
-      </h1>
+        <h1 class="hero__title reveal">
+          <span>Одна внешность —</span>
+          <span class="hero__accent">пять образов</span>
+        </h1>
 
-      <p class="hero__lead reveal">
-        ALTERA превращает обычные снимки в цельную визуальную историю. Без студии,
-        сложной подготовки и свободного дня: получаешь персональные портреты для бизнеса,
-        соцсетей и личного бренда. Все работы ниже созданы этим же способом.
-      </p>
+        <p class="hero__lead reveal">
+          ALTERA превращает обычные снимки в цельную визуальную историю. Без студии,
+          сложной подготовки и свободного дня: получаешь персональные портреты для бизнеса,
+          соцсетей и личного бренда. Все работы ниже созданы этим же способом.
+        </p>
 
-      <div class="hero__actions reveal">
-        <a class="btn btn--solid btn--lg" href="#contact">Создать свои образы</a>
-        <a class="btn btn--ghost btn--lg" href="#work">Смотреть работы</a>
+        <div class="hero__actions reveal">
+          <a class="btn btn--solid btn--lg" href="#contact">Создать свои образы</a>
+          <a class="btn btn--ghost btn--lg" href="#work">Смотреть работы</a>
+        </div>
+
+        <div class="hero__flow reveal" aria-hidden="true">
+          <div class="flow__source">
+            <div class="flow__source-icon"></div>
+            <span>10–15 твоих фото</span>
+          </div>
+          <div class="flow__arrow"><span></span></div>
+          <ul class="flow__out">
+            <!-- превью стилей генерируются из gallery-data.js -->
+          </ul>
+          <p class="flow__note">Пять образов<br>из одной серии</p>
+        </div>
       </div>
 
-      <div class="hero__flow reveal" aria-hidden="true">
-        <div class="flow__source">
-          <div class="flow__source-icon"></div>
-          <span>10–15 твоих фото</span>
-        </div>
-        <div class="flow__arrow"><span></span></div>
-        <ul class="flow__out">
-          <!-- превью стилей генерируются из gallery-data.js -->
-        </ul>
+      <!-- Стек портретов; собирается из gallery-data.js -->
+      <div class="hero__showcase" aria-hidden="true">
+        <div class="hero__stack"></div>
       </div>
     </div>
   </section>
@@ -103,6 +153,9 @@
       <!-- содержимое генерируется из gallery-data.js -->
     </div>
   </div>
+
+  <!-- ИСХОДНИК → РЕЗУЛЬТАТ (появляется, когда заполнен COMPARE) -->
+  <div id="compare-slot"></div>
 
   <!-- РАЗДЕЛЫ-ГАЛЕРЕИ -->
   <div id="work">
@@ -135,6 +188,69 @@
     </div>
   </section>
 
+  <!-- ПАКЕТЫ -->
+  <section class="packages" id="packages">
+    <div class="wrap">
+      <p class="eyebrow reveal">Цена</p>
+      <h2 class="section-title reveal">Сколько стоит<br>и что входит</h2>
+      <!-- панель с ценой и плашка-напоминание генерируются из gallery-data.js -->
+      <div class="packages__slot"></div>
+    </div>
+  </section>
+
+  <!-- ВОПРОСЫ -->
+  <section class="faq" id="faq">
+    <div class="wrap">
+      <p class="eyebrow reveal">Вопросы</p>
+      <h2 class="section-title reveal">Что обычно<br>спрашивают</h2>
+      <!--
+        Вопросы лежат прямо в разметке, а не собираются скриптом.
+        Это единственный крупный блок связного текста на странице: он должен
+        читаться поисковиком и при отключённом JS, а разметка FAQPage обязана
+        описывать то, что в HTML действительно есть. JSON-LD собирается
+        скриптом из этих же элементов, поэтому разойтись они не могут.
+      -->
+      <div class="faq__list reveal">
+        <details class="faq__item">
+          <summary class="faq__q">Какие фотографии нужны и сколько?</summary>
+          <div class="faq__a">Десять-пятнадцать обычных снимков с телефона: разные ракурсы, разное освещение, лицо хорошо видно и не перекрыто очками, кепкой или чужим плечом. Ретушь, макияж и специальная одежда не нужны — наоборот, чем обычнее исходники, тем точнее получается сходство.</div>
+        </details>
+        <details class="faq__item">
+          <summary class="faq__q">Насколько результат будет похож на меня?</summary>
+          <div class="faq__a">Модель настраивается персонально под твою внешность, а не подставляет лицо в готовый шаблон. Из каждой серии я отбираю только те кадры, где сходство честное: всё сомнительное отсеивается до того, как ты это увидишь.</div>
+        </details>
+        <details class="faq__item">
+          <summary class="faq__q">А если результат не понравится?</summary>
+          <div class="faq__a">Правки по выбранным кадрам входят в работу — поменять свет, фон, одежду или выражение можно без доплаты. Если после правок стиль всё равно не тот, переснимаем направление заново.</div>
+        </details>
+        <details class="faq__item">
+          <summary class="faq__q">Сколько это занимает времени?</summary>
+          <div class="faq__a">От тебя — десять минут на то, чтобы скинуть фотографии. Дальше настройка модели и генерация идут на моей стороне, срок зависит от количества стилей и указан в описании пакета.</div>
+        </details>
+        <details class="faq__item">
+          <summary class="faq__q">А если нужен образ, которого нет среди пяти направлений?</summary>
+          <div class="faq__a">Придумаем под задачу: свой сюжет, костюм, место действия. Каждый такой образ считается отдельно — 1 000 ₽ сверх стоимости фотосессии. Пять направлений с этой страницы входят в базовую цену.</div>
+        </details>
+        <details class="faq__item">
+          <summary class="faq__q">Кому принадлежат готовые фотографии?</summary>
+          <div class="faq__a">Тебе. Можно публиковать где угодно, использовать в резюме, рекламе и на сайте компании, печатать без ограничений по тиражу. Я не выкладываю работы в портфолио без отдельного разрешения.</div>
+        </details>
+        <details class="faq__item">
+          <summary class="faq__q">Что происходит с моими исходниками после работы?</summary>
+          <div class="faq__a">Исходные фотографии и настроенная под тебя модель удаляются после сдачи заказа. Если захочешь позже дозаказать стиль, исходники нужно будет прислать заново.</div>
+        </details>
+        <details class="faq__item">
+          <summary class="faq__q">Можно ли печатать эти кадры?</summary>
+          <div class="faq__a">Да. Готовые файлы отдаются в разрешении, которого хватает на печать до A3, — этого достаточно и для визитки, и для стенда на конференции.</div>
+        </details>
+        <details class="faq__item">
+          <summary class="faq__q">Видно ли, что фотографии сделаны нейросетью?</summary>
+          <div class="faq__a">В деловом, casual и editorial направлениях — при обычном просмотре нет. Cinematic и fantasy намеренно выглядят как постановочный кадр: там условность и есть смысл стиля. Все работы на этой странице сделаны именно так, суди по ним.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ФУТЕР / КОНТАКТЫ -->
@@ -145,16 +261,18 @@
       <p class="footer__lead">Напиши удобным способом — обсудим задачу, стили, сроки и исходные фотографии.</p>
     </div>
 
+    <!-- Контакты статичны намеренно: работают и при отключённом JS.
+         Текст первого сообщения подставляется скриптом из CONTACT. -->
     <ul class="contacts reveal">
       <li>
-        <a class="contact" href="https://t.me/VlV_7777" target="_blank" rel="noopener noreferrer">
+        <a class="contact" data-contact="telegram" href="https://t.me/VlV_7777" target="_blank" rel="noopener noreferrer">
           <span class="contact__label">Telegram</span>
           <span class="contact__value">@VlV_7777</span>
         </a>
       </li>
       <li>
         <!-- wa.me требует номер без плюса, пробелов и дефисов -->
-        <a class="contact" href="https://wa.me/79138317777" target="_blank" rel="noopener noreferrer">
+        <a class="contact" data-contact="whatsapp" href="https://wa.me/79138317777" target="_blank" rel="noopener noreferrer">
           <span class="contact__label">WhatsApp</span>
           <span class="contact__value">+7 913 831-77-77</span>
         </a>
@@ -168,6 +286,9 @@
   </div>
 </footer>
 
+<!-- Липкая кнопка: на мобильном после первого экрана заказать больше неоткуда -->
+<a class="btn btn--solid cta-dock" id="cta-dock" href="#contact">Заказать фотосессию</a>
+
 <!-- ЛАЙТБОКС -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фото" hidden>
   <button class="lightbox__close" type="button" aria-label="Закрыть (Esc)"></button>
@@ -175,7 +296,10 @@
   <button class="lightbox__nav lightbox__nav--next" type="button" aria-label="Следующее фото"></button>
 
   <figure class="lightbox__figure">
-    <img class="lightbox__img" alt="" width="848" height="1264">
+    <picture>
+      <source class="lightbox__source" type="image/webp">
+      <img class="lightbox__img" alt="" width="848" height="1264">
+    </picture>
     <figcaption class="lightbox__caption">
       <span class="lightbox__style"></span>
       <span class="lightbox__counter"></span>

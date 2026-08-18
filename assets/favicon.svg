@@ -1,13 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ALTERA">
+  <!--
+    Иконка вкладки: тот же знак, но упрощённый под мелкий размер.
+    В 16 px блик, теневая грань и контрформа «А» превращаются в грязь,
+    поэтому здесь их нет, а сама «А» крупнее, чем в полном знаке.
+  -->
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FF2D9B"/>
-      <stop offset=".45" stop-color="#FF7A18"/>
-      <stop offset="1" stop-color="#A855F7"/>
+    <linearGradient id="f-ul" gradientUnits="userSpaceOnUse" x1="5" y1="32" x2="32" y2="15">
+      <stop offset="0" stop-color="#FF8A00"/><stop offset="1" stop-color="#FF2D9B"/>
     </linearGradient>
+    <linearGradient id="f-ur" gradientUnits="userSpaceOnUse" x1="59" y1="32" x2="32" y2="15">
+      <stop offset="0" stop-color="#6D28E8"/><stop offset="1" stop-color="#E5219B"/>
+    </linearGradient>
+    <linearGradient id="f-ll" gradientUnits="userSpaceOnUse" x1="5" y1="32" x2="32" y2="52">
+      <stop offset="0" stop-color="#FF7A18"/><stop offset="1" stop-color="#FF2D9B"/>
+    </linearGradient>
+    <linearGradient id="f-lr" gradientUnits="userSpaceOnUse" x1="59" y1="32" x2="32" y2="52">
+      <stop offset="0" stop-color="#8B3BF7"/><stop offset="1" stop-color="#F0339E"/>
+    </linearGradient>
+    <mask id="f-a">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M32 21 47 47 17 47Z" fill="#000"/>
+    </mask>
   </defs>
   <rect width="64" height="64" rx="14" fill="#0A0611"/>
-  <rect x="12" y="12" width="40" height="40" rx="11" fill="url(#g)"/>
-  <circle cx="32" cy="32" r="10" fill="#0A0611"/>
-  <circle cx="32" cy="32" r="4.5" fill="url(#g)"/>
+  <g mask="url(#f-a)">
+    <path d="M32 6 5 32 32 32Z"  fill="url(#f-ul)"/>
+    <path d="M32 6 59 32 32 32Z" fill="url(#f-ur)"/>
+    <path d="M32 58 5 32 32 32Z"  fill="url(#f-ll)"/>
+    <path d="M32 58 59 32 32 32Z" fill="url(#f-lr)"/>
+  </g>
 </svg>

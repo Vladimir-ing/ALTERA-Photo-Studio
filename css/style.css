@@ -50,7 +50,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-body.is-locked { overflow: hidden; }
+/* Блокировка скролла — в js/main.js (lockScroll): overflow: hidden на body
+   не останавливал прокрутку, зато ломал sticky-шапку и сбивал позицию. */
 
 h1, h2, h3 {
   font-family: var(--font-display);
@@ -64,6 +65,10 @@ h1, h2, h3 {
 p { margin: 0; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 img { display: block; max-width: 100%; height: auto; }
+
+/* <picture> — обёртка ради выбора формата, в раскладке её быть не должно:
+   иначе проценты у вложенного <img> считаются не от той коробки. */
+picture { display: contents; }
 
 a { color: inherit; text-decoration: none; }
 
@@ -172,10 +177,22 @@ button {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: color-mix(in srgb, var(--ink) 82%, transparent);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Размытие живёт на подложке, а не на самой шапке. backdrop-filter создаёт
+   containing block для position: fixed — и мобильное меню, лежащее внутри
+   шапки, начинало позиционироваться от неё, а не от окна: после прокрутки
+   оно открывалось за пределами экрана. Псевдоэлемент не предок меню,
+   поэтому fixed снова считается от вьюпорта. */
+.site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--ink) 92%, transparent);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border-bottom: 1px solid var(--line);
 }
 
 .site-header__bar {
@@ -200,11 +217,15 @@ button {
 }
 .logo__thin { color: var(--muted); margin-left: .3em; }
 .logo__mark {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #FF2D9B, #FF7A18 45%, #A855F7);
-  box-shadow: 0 0 14px -2px #FF2D9B;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 12px rgba(255, 45, 155, .45));
+  transition: transform .45s var(--ease), filter .45s var(--ease);
+}
+.logo:hover .logo__mark {
+  transform: rotate(10deg) scale(1.06);
+  filter: drop-shadow(0 0 18px rgba(255, 45, 155, .75));
 }
 
 .nav {
@@ -290,7 +311,7 @@ button {
 
 .hero {
   position: relative;
-  padding: clamp(4rem, 9vw, 8.5rem) 0 clamp(3rem, 6vw, 5.5rem);
+  padding: clamp(2.6rem, 5.5vw, 5rem) 0 clamp(3rem, 6vw, 5.5rem);
   overflow: hidden;
 }
 
@@ -322,8 +343,8 @@ button {
 .hero .eyebrow { color: #FF7A18; }
 
 .hero__title {
-  font-size: clamp(2.6rem, .8rem + 8.4vw, 7.5rem);
-  margin-bottom: 1.6rem;
+  font-size: clamp(2.4rem, 1.1rem + 4.6vw, 4.4rem);
+  margin-bottom: 1.4rem;
 }
 .hero__title span { display: block; }
 .hero__accent {
@@ -480,6 +501,8 @@ button {
   gap: 2.5rem;
   animation: marquee 38s linear infinite;
 }
+/* останавливаем под курсором — иначе название стиля не успеть прочитать */
+.marquee:hover .marquee__track { animation-play-state: paused; }
 
 .marquee__item {
   font-family: var(--font-display);
@@ -581,11 +604,17 @@ button {
   opacity: .7;
 }
 
-/* Сетка: плотная для разделов с 4+ фото, крупная для 2-3 */
+/* Сетка: плотная для разделов с 4+ фото, крупная для 2-3.
+   auto-fit, а не auto-fill: auto-fill оставлял пустые колонки, и четыре кадра
+   раскладывались в пять ячеек — плитка выходила мелкой, а справа зияла дыра.
+   auto-fit схлопывает лишние треки, и кадры заполняют ряд целиком.
+   --cols (число кадров, ставится из JS) не даёт плитке раздуться
+   в разделе с двумя-тремя фото. */
 .grid {
   display: grid;
   gap: clamp(.6rem, 1.4vw, 1rem);
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  max-width: calc(var(--cols, 4) * 20rem);
 }
 /* --cols проставляется из JS по числу кадров: плитка держит одну ширину
    и в разделе с двумя фото, и в разделе с тремя */
@@ -596,7 +625,7 @@ button {
 }
 
 @media (min-width: 40em) {
-  .grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .grid { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
   .grid--feature { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 }
 
@@ -830,7 +859,7 @@ button {
 }
 
 .lightbox__img {
-  max-height: min(78vh, 1100px);
+  max-height: min(84vh, 1200px);
   width: auto;
   max-width: 100%;
   border-radius: var(--radius);
@@ -913,6 +942,436 @@ button {
 }
 .js-reveal .reveal.is-in { opacity: 1; transform: none; }
 
+/* --- Хиро: правая колонка со стеком портретов и знаком ------------------ */
+
+/* Знак во всю ширину хиро. Раньше он лежал внутри правой колонки, и колода
+   портретов закрывала его целиком — от логотипа оставался кусок ромба,
+   похожий на случайную фигуру. Здесь он крупнее всего остального и читается
+   как подложка секции: текст и кадры идут поверх (у .hero__inner z-index: 2). */
+.hero__logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: min(58rem, 78vw);
+  translate: -50% -50%;
+  opacity: .05;
+  pointer-events: none;
+  animation: mark-spin 26s ease-in-out infinite;
+}
+
+@media (min-width: 62em) {
+  .hero__logo { width: min(62rem, 62vw); opacity: .12; }
+}
+
+
+.hero__showcase { display: none; }
+
+@media (min-width: 62em) {
+  .hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    gap: clamp(1.5rem, 3.5vw, 3.5rem);
+    align-items: center;
+  }
+
+  /* В колонке текст и так узкий — ограничение в 46ch добавляло лишние строки
+     и выталкивало кнопки под сгиб на ноутбуке 1280×720. */
+  .hero__lead { max-width: 54ch; margin-bottom: 1.8rem; }
+
+  .hero__showcase {
+    display: block;
+    position: relative;
+    aspect-ratio: 1 / 1;
+  }
+
+  /* Веер из пяти кадров: --i задаёт место в колоде, JS его прокручивает */
+  .hero__stack {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 54%;
+    aspect-ratio: 2 / 3;
+    translate: 0 -50%;
+  }
+
+  .hero__card {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--ink-2);
+    transform:
+      translate(calc(var(--i, 0) * 19%), calc(var(--i, 0) * -3%))
+      rotate(calc(-3deg + var(--i, 0) * 5deg))
+      scale(calc(1 - var(--i, 0) * .06));
+    z-index: calc(50 - var(--i, 0) * 10);
+    opacity: calc(1 - var(--i, 0) * .1);
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .9);
+    transition: transform .9s var(--ease), opacity .9s var(--ease);
+  }
+  .hero__card img { width: 100%; height: 100%; object-fit: cover; }
+
+  .hero__card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, color-mix(in srgb, var(--accent) 45%, transparent), transparent 60%);
+    mix-blend-mode: screen;
+    opacity: .6;
+  }
+
+  .hero__card-name {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: .7rem;
+    text-align: center;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, .9);
+  }
+
+  /* На десктопе роль «пяти образов» играет стек, чипы дублировали бы его */
+  .hero__flow .flow__out { display: none; }
+}
+
+/* Не полный оборот: на 45° ромб становится квадратом и перестаёт читаться
+   как знак. Здесь он лишь покачивается и «дышит», оставаясь узнаваемым. */
+@keyframes mark-spin {
+  0%, 100% { transform: rotate(-7deg) scale(1); }
+  50%      { transform: rotate(7deg) scale(1.05); }
+}
+
+.flow__note {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+@media (max-width: 61.99em) {
+  .flow__note { display: none; }
+}
+
+/* --- Исходник → результат ---------------------------------------------- */
+
+.compare {
+  --accent: #00E08F;
+  padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: calc(var(--header-h) + 12px);
+}
+
+.compare__grid {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  margin-top: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.compare__viewer {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  max-width: 30rem;
+  touch-action: pan-y;
+}
+.compare__viewer img { width: 100%; display: block; }
+
+/* Верхний кадр обрезается по --pos, нижний виден целиком */
+.compare__before {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: cover;
+  clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0);
+}
+
+.compare__handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos, 50%);
+  width: 2px;
+  background: var(--paper);
+  translate: -1px 0;
+  pointer-events: none;
+  box-shadow: 0 0 18px rgba(0, 0, 0, .6);
+}
+.compare__handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 85%, var(--ink));
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, .8);
+}
+
+/* Ползунок прозрачный поверх картинки: тянется мышью, пальцем и стрелками */
+.compare__range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+}
+.compare__range:focus-visible { opacity: 0; }
+.compare__viewer:has(.compare__range:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.compare__tags {
+  display: flex;
+  justify-content: space-between;
+  margin-top: .8rem;
+  max-width: 30rem;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* --- Пакеты ------------------------------------------------------------ */
+
+.packages {
+  --accent: #FF7A18;
+  padding: clamp(4rem, 9vw, 7.5rem) 0;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: calc(var(--header-h) + 12px);
+}
+
+/* Плашка-напоминание: видна, пока в данных стоят нули вместо цен */
+.packages__draft {
+  margin: 1.6rem 0 0;
+  padding: .9rem 1.1rem;
+  border: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  font-size: .85rem;
+  color: var(--paper);
+}
+.packages__draft b { color: var(--accent); }
+.packages__draft code {
+  padding: .1rem .35rem;
+  overflow-wrap: anywhere;
+  border-radius: 5px;
+  background: rgba(244, 240, 255, .08);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .92em;
+}
+
+/* Одна цена — одна панель: слева сумма и кнопка, справа что входит */
+.price {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  align-items: center;
+  margin-top: clamp(2.2rem, 5vw, 3.4rem);
+  padding: clamp(1.6rem, 4vw, 3rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse 80% 120% at 0% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+    linear-gradient(160deg, var(--ink-2), var(--ink));
+  box-shadow: 0 30px 70px -40px var(--accent);
+}
+
+.price__value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 2rem + 5vw, 5rem);
+  line-height: 1;
+  letter-spacing: -.04em;
+  background: linear-gradient(100deg, #FF7A18, #FF2D9B 55%, #A855F7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.price__unit {
+  margin-top: .3rem;
+  font-size: .8rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Доплата — вторая по значимости строка. Градиент остаётся приметой главной
+   цены: если залить им обе суммы, они начнут спорить за внимание. */
+.price__extra {
+  margin-top: 1.2rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.price__extra-sum {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.4rem, 1.1rem + .9vw, 1.8rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--paper);
+}
+
+.price__extra-unit {
+  margin-top: .25rem;
+  font-size: .74rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.price__extra-note {
+  margin-top: .5rem;
+  max-width: 34ch;
+  font-size: .85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.price__meta {
+  margin: 1.1rem 0 1.6rem;
+  color: var(--muted);
+  font-size: .95rem;
+  line-height: 1.5;
+}
+
+.price__items { display: grid; gap: .8rem; font-size: .98rem; }
+.price__items li { position: relative; padding-left: 1.8rem; }
+.price__items li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .34em;
+  width: 11px;
+  height: 6px;
+  border-left: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  rotate: -45deg;
+}
+
+/* --- Вопросы ----------------------------------------------------------- */
+
+.faq {
+  --accent: #3B6BFF;
+  padding: clamp(4rem, 9vw, 7.5rem) 0;
+  scroll-margin-top: calc(var(--header-h) + 12px);
+}
+
+.faq__list {
+  margin-top: clamp(2rem, 4vw, 3rem);
+  max-width: 52rem;
+  border-top: 1px solid var(--line);
+}
+
+.faq__item { border-bottom: 1px solid var(--line); }
+
+.faq__q {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 0;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1rem, .95rem + .35vw, 1.15rem);
+  letter-spacing: -.02em;
+  list-style: none;
+  transition: color .25s var(--ease);
+}
+.faq__q::-webkit-details-marker { display: none; }
+.faq__q:hover { color: var(--accent); }
+
+.faq__q::after {
+  content: '';
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 11px;
+  height: 11px;
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  rotate: 45deg;
+  translate: 0 -3px;
+  transition: rotate .3s var(--ease), translate .3s var(--ease);
+}
+.faq__item[open] .faq__q::after { rotate: -135deg; translate: 0 3px; }
+
+.faq__a {
+  padding: 0 3rem 1.4rem 0;
+  color: var(--muted);
+  max-width: 62ch;
+}
+
+/* --- Липкая кнопка на мобильном ---------------------------------------- */
+
+.cta-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 90;
+  translate: -50% 0;
+  display: none;
+  box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .9);
+  opacity: 0;
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+  transform: translateY(140%);
+}
+.cta-dock.is-shown { opacity: 1; transform: none; }
+
+@media (max-width: 62em) {
+  .cta-dock { display: inline-flex; }
+  /* чтобы кнопка не легла на нижнюю строку футера */
+  .site-footer { padding-bottom: 5.5rem; }
+}
+
+/* --- Заставка при загрузке --------------------------------------------- */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  transition: opacity .45s var(--ease), visibility .45s;
+}
+.preloader[hidden] { display: none; }
+.preloader.is-done { opacity: 0; visibility: hidden; }
+
+.preloader__mark {
+  width: clamp(84px, 16vw, 132px);
+  animation: pre-in .7s var(--ease) both;
+  transition: transform .45s var(--ease), opacity .45s var(--ease);
+}
+.preloader.is-done .preloader__mark { transform: scale(1.18); opacity: 0; }
+
+@keyframes pre-in {
+  from { opacity: 0; transform: scale(.6) rotate(-25deg); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: none; }
+}
+
 /* --- Мобильные --------------------------------------------------------- */
 
 @media (max-width: 62em) {
@@ -966,7 +1425,9 @@ button {
   .flow__arrow { display: none; }
   .flow__source { width: 84px; }
   .flow__out { gap: .3rem; }
-  .flow__chip-name { font-size: .5rem; padding: .3rem .2rem; }
+  /* Подпись не помещается в чип 45 px — обрезалась на полуслове.
+     Стиль всё равно назван в меню и в заголовке раздела. */
+  .flow__chip-name { display: none; }
 
   .lightbox__nav { width: 42px; height: 42px; }
   .lightbox__nav--prev { left: .4rem; }
@@ -986,4 +1447,8 @@ button {
 
   .marquee__track { animation: none; }
   .js-reveal .reveal { opacity: 1; transform: none; }
+
+  /* Знак в хиро замирает, заставка не показывается вовсе (см. main.js) */
+  .hero__logo { animation: none; }
+  .preloader__mark { animation: none; }
 }
