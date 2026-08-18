@@ -4,7 +4,7 @@
 адаптивные галереи и лайтбокс. Без фреймворков и сборки — обычные HTML, CSS и JS,
 готовые к публикации на GitHub Pages.
 
-Рабочий адрес: https://vladimir-ing.github.io/ALTERA/
+Рабочий адрес: https://vladimir-ing.github.io/ALTERA-Photo-Studio/
 
 ## Основные настройки
 
