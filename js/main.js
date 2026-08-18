@@ -263,19 +263,9 @@
   const priceSlot = $('.packages__slot');
 
   if (priceSlot && typeof PRICING !== 'undefined' && PRICING) {
-    // Заглушки видно по нулям. Пока хоть одна на месте, над блоком висит
-    // напоминание — чтобы незаполненное не уехало в публикацию незамеченным.
-    const draft = [PRICING.price, PRICING.lead, PRICING.shots]
-      .filter((v) => /(^|[^\d])0{2,}([^\d]|$)|0\s*[–-]\s*0/.test(String(v)));
-
     const href = messengerUrl('telegram', CONTACT.greeting);
 
     priceSlot.innerHTML =
-      (draft.length
-        ? '<p class="packages__draft reveal"><b>Черновик:</b> срок и количество кадров ещё не заполнены. ' +
-          'Замени нули в <code>js/gallery-data.js</code>, в объекте <code>PRICING</code>, ' +
-          'и эта плашка исчезнет сама.</p>'
-        : '') +
       '<div class="price reveal">' +
         '<div class="price__main">' +
           '<p class="price__value">' + esc(PRICING.price) + '</p>' +

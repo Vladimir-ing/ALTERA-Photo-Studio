@@ -1159,26 +1159,6 @@ button {
   scroll-margin-top: calc(var(--header-h) + 12px);
 }
 
-/* Плашка-напоминание: видна, пока в данных стоят нули вместо цен */
-.packages__draft {
-  margin: 1.6rem 0 0;
-  padding: .9rem 1.1rem;
-  border: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-  font-size: .85rem;
-  color: var(--paper);
-}
-.packages__draft b { color: var(--accent); }
-.packages__draft code {
-  padding: .1rem .35rem;
-  overflow-wrap: anywhere;
-  border-radius: 5px;
-  background: rgba(244, 240, 255, .08);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: .92em;
-}
-
 /* Одна цена — одна панель: слева сумма и кнопка, справа что входит */
 .price {
   display: grid;
