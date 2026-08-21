@@ -102,7 +102,7 @@ const GALLERY = [
 const CONTACT = {
   // Канал — чтение: написать в него нельзя, поэтому текст первого сообщения
   // к нему не подставляется, а способ написать остаётся в двух карточках ниже.
-  channel:  { label: 'Канал',    value: '@altera_ai',       url: 'https://t.me/altera_ai' },
+  channel:  { label: 'Канал',    value: '@ai_terra_studio', url: 'https://t.me/ai_terra_studio' },
   telegram: { label: 'Telegram', value: '@VlV_7777',        url: 'https://t.me/VlV_7777' },
   // wa.me требует номер без плюса, пробелов и дефисов
   whatsapp: { label: 'WhatsApp', value: '+7 913 831-77-77', url: 'https://wa.me/79138317777' },
