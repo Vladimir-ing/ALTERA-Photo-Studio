@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ALTERA — AI Identity Studio
+   AI TERRA — AI Identity Studio (продукт бренда ALTERA)
    Тёмная база + неоновый акцент, свой цвет на каждый раздел.
    Акцент прокидывается переменной --accent на секции: заголовок, номер,
    свечение, рамки и пункт меню берут её автоматически.
@@ -824,6 +824,19 @@ button {
   border-top: 1px solid var(--line);
   font-size: .78rem;
   color: var(--muted);
+}
+
+/* подпись дизайн-студии ALTERA внизу сайта */
+.footer__bottom a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  transition: color .25s, border-color .25s;
+}
+
+.footer__bottom a:hover {
+  color: var(--paper);
+  border-color: var(--paper);
 }
 
 /* --- Лайтбокс ---------------------------------------------------------- */
