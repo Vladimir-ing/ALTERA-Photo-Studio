@@ -12,11 +12,10 @@
  * ПЯТЬ НАПРАВЛЕНИЙ (11.09.2026): деловой портрет, editorial / fashion,
  * lifestyle cinematic, personal brand, fantasy / art.
  *
- * Про пути к файлам: имена папок в assets/img остались прежними —
- * cinematic, casual, business. Они не совпадают с новыми названиями
- * разделов, и это нормально: снимки те же самые, переименовывать файлы
- * ради вывески смысла нет. Когда приедут новые серии, папки заведём
- * по новым именам и пути здесь поменяются заодно.
+ * Кадры заменены на новую серию 11.09.2026. Имя папки в assets/img
+ * совпадает с id раздела, в каждой — по четыре кадра, full-01..04
+ * и thumb-01..04 в JPEG и WebP. Порядок кадров следует нумерации
+ * исходных файлов портфолио.
  */
 
 const GALLERY = [
@@ -30,8 +29,10 @@ const GALLERY = [
       'Ровный свет, спокойная уверенность в кадре: студийный хедшот на нейтральном фоне. Портрет, который не стыдно поставить первым в профиль и отправить в пресс-службу.',
     accent: '#3B6BFF',
     photos: [
-      { thumb: 'assets/img/business/thumb-01.jpg', full: 'assets/img/business/full-01.jpg', w: 848, h: 1264, alt: 'Деловой портрет: тёмно-синий костюм и белая рубашка без галстука, открытая улыбка на сером фоне' },
-      { thumb: 'assets/img/business/thumb-04.jpg', full: 'assets/img/business/full-04.jpg', w: 848, h: 1264, alt: 'Деловой портрет: костюм с галстуком, классический студийный хедшот для LinkedIn' }
+      { thumb: 'assets/img/business/thumb-01.jpg', full: 'assets/img/business/full-01.jpg', w: 848, h: 1264, alt: 'Деловой портрет: тёмно-синий костюм и белая рубашка без галстука, спокойный взгляд в камеру на сером студийном фоне' },
+      { thumb: 'assets/img/business/thumb-02.jpg', full: 'assets/img/business/full-02.jpg', w: 848, h: 1264, alt: 'Деловой портрет: работа с документами за столом у окна, синий пиджак поверх белой футболки' },
+      { thumb: 'assets/img/business/thumb-03.jpg', full: 'assets/img/business/full-03.jpg', w: 848, h: 1264, alt: 'Деловой портрет: шаг по светлому офисному коридору со стеклянными перегородками, папка под рукой' },
+      { thumb: 'assets/img/business/thumb-04.jpg', full: 'assets/img/business/full-04.jpg', w: 848, h: 1264, alt: 'Деловой портрет: выступление у флипчарта с диаграммой, разбор показателей перед командой' }
     ]
   },
   {
@@ -44,10 +45,10 @@ const GALLERY = [
       'Жёсткий контраст, глубокие тени, цветные гелевые светофильтры и характер вместо вежливой улыбки. Кадр в логике журнальной обложки — цепляет взгляд в ленте с первой секунды.',
     accent: '#FF2D9B',
     photos: [
-      { thumb: 'assets/img/editorial/thumb-01.jpg', full: 'assets/img/editorial/full-01.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: чёрная рубашка, наклон головы, контровой свет на чёрном фоне' },
-      { thumb: 'assets/img/editorial/thumb-02.jpg', full: 'assets/img/editorial/full-02.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: красно-синий гелевый свет, руки у шеи, взгляд вверх' },
-      { thumb: 'assets/img/editorial/thumb-03.jpg', full: 'assets/img/editorial/full-03.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: чёрная водолазка, скрещённые руки, глубокие тени' },
-      { thumb: 'assets/img/editorial/thumb-04.jpg', full: 'assets/img/editorial/full-04.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: рука у подбородка, часы на запястье, журнальная подача' }
+      { thumb: 'assets/img/editorial/thumb-01.jpg', full: 'assets/img/editorial/full-01.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: крупный план в чёрной водолазке, жёсткий боковой свет на чёрном фоне' },
+      { thumb: 'assets/img/editorial/thumb-02.jpg', full: 'assets/img/editorial/full-02.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: ростовой кадр в чёрном пальто и серых брюках у бетонной стены' },
+      { thumb: 'assets/img/editorial/thumb-03.jpg', full: 'assets/img/editorial/full-03.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: свободная поза в бордовом кресле, чёрная рубашка, тёмно-серый фон' },
+      { thumb: 'assets/img/editorial/thumb-04.jpg', full: 'assets/img/editorial/full-04.jpg', w: 848, h: 1264, alt: 'Editorial-портрет: красная неоновая подсветка, тёмный пиджак, прямой взгляд в камеру' }
     ]
   },
   {
@@ -66,22 +67,14 @@ const GALLERY = [
       'Естественные кадры с атмосферой кино: прогулки, поездки, кафе, городские улицы и повседневные моменты. Живые эмоции, разные планы, движение и ощущение настоящей съёмки.',
     accent: '#FF7A18',
     photos: [
-      { thumb: 'assets/img/casual/thumb-01.jpg', full: 'assets/img/casual/full-01.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: осенний парк, жёлтая листва в расфокусе, серый свитшот' },
-      { thumb: 'assets/img/cinematic/thumb-01.jpg', full: 'assets/img/cinematic/full-01.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: закатный свет на городской улице, огни в расфокусе' },
-      { thumb: 'assets/img/casual/thumb-02.jpg', full: 'assets/img/casual/full-02.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: у окна дома, мягкий дневной свет, искренняя улыбка' },
-      { thumb: 'assets/img/cinematic/thumb-03.jpg', full: 'assets/img/cinematic/full-03.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: ночная улица под дождём, неоновые вывески в синем и розовом' },
-      { thumb: 'assets/img/casual/thumb-04.jpg', full: 'assets/img/casual/full-04.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: веранда кафе, джинсовая рубашка, широкая улыбка' },
-      { thumb: 'assets/img/cinematic/thumb-04.jpg', full: 'assets/img/cinematic/full-04.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: сумерки, тёплая неоновая вывеска и боке городских огней' },
-      { thumb: 'assets/img/casual/thumb-03.jpg', full: 'assets/img/casual/full-03.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: берег моря, светлая рубашка, спокойный горизонт' },
-      { thumb: 'assets/img/cinematic/thumb-02.jpg', full: 'assets/img/cinematic/full-02.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: заброшенный цех, холодная зелёно-серая гамма' }
+      { thumb: 'assets/img/cinematic/thumb-01.jpg', full: 'assets/img/cinematic/full-01.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: прогулка по городской улице, оливковая куртка и джинсы, мягкий дневной свет' },
+      { thumb: 'assets/img/cinematic/thumb-02.jpg', full: 'assets/img/cinematic/full-02.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: чашка кофе у панорамного окна кафе, взгляд на улицу' },
+      { thumb: 'assets/img/cinematic/thumb-03.jpg', full: 'assets/img/cinematic/full-03.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: за рулём автомобиля, рука на руле, взгляд в боковое окно' },
+      { thumb: 'assets/img/cinematic/thumb-04.jpg', full: 'assets/img/cinematic/full-04.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: на перроне у железнодорожных путей с дорожной сумкой, сумерки' }
     ]
   },
   {
-    /*
-     * Новое направление (11.09.2026). Своей серии пока нет — до её
-     * подготовки здесь стоят два кадра из деловой съёмки, которые как раз
-     * про рабочие сцены, а не про хедшот. Файлы лежат в assets/img/business.
-     */
+    /* Новое направление (11.09.2026), со своей серией из четырёх кадров. */
     id: 'personal',
     short: 'Personal',
     num: '04',
@@ -91,8 +84,10 @@ const GALLERY = [
       'Фотографии, которые показывают не только внешность, но и характер, профессию и образ жизни. Рабочие сцены, выступления, встречи, увлечения, поясные и ростовые кадры.',
     accent: '#00E08F',
     photos: [
-      { thumb: 'assets/img/business/thumb-02.jpg', full: 'assets/img/business/full-02.jpg', w: 848, h: 1264, alt: 'Имиджевый портрет: за рабочим столом у панорамного окна с видом на город' },
-      { thumb: 'assets/img/business/thumb-03.jpg', full: 'assets/img/business/full-03.jpg', w: 848, h: 1264, alt: 'Имиджевый портрет: кабинет в тёплых тонах, работа с ежедневником' }
+      { thumb: 'assets/img/personal/thumb-01.jpg', full: 'assets/img/personal/full-01.jpg', w: 848, h: 1264, alt: 'Имиджевый портрет: разбор отпечатков на большом столе у окна, рабочая сцена' },
+      { thumb: 'assets/img/personal/thumb-02.jpg', full: 'assets/img/personal/full-02.jpg', w: 848, h: 1264, alt: 'Имиджевый портрет: запись подкаста за микрофоном, разговор с жестом рукой' },
+      { thumb: 'assets/img/personal/thumb-03.jpg', full: 'assets/img/personal/full-03.jpg', w: 848, h: 1264, alt: 'Имиджевый портрет: с фотокамерой в руках на городской улице' },
+      { thumb: 'assets/img/personal/thumb-04.jpg', full: 'assets/img/personal/full-04.jpg', w: 848, h: 1264, alt: 'Имиджевый портрет: выступление на сцене перед экраном, жест обеими руками' }
     ]
   },
   {
@@ -105,10 +100,10 @@ const GALLERY = [
       'Четыре разных мира: стимпанк-город, снежные вершины, древняя библиотека, туманный лес. Стиль для тех, кому нужен не портрет, а образ — на аватар, обложку или в подарок.',
     accent: '#A855F7',
     photos: [
-      { thumb: 'assets/img/fantasy/thumb-01.jpg', full: 'assets/img/fantasy/full-01.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: стимпанк-город, газовые фонари, кожаная портупея' },
-      { thumb: 'assets/img/fantasy/thumb-02.jpg', full: 'assets/img/fantasy/full-02.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: снежные горы, меховой воротник, холодная синяя гамма' },
-      { thumb: 'assets/img/fantasy/thumb-03.jpg', full: 'assets/img/fantasy/full-03.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: древняя библиотека, свитки на полках, красно-охристый плащ' },
-      { thumb: 'assets/img/fantasy/thumb-04.jpg', full: 'assets/img/fantasy/full-04.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: туманный лес, чёрная броня с золотым орнаментом' }
+      { thumb: 'assets/img/fantasy/thumb-01.jpg', full: 'assets/img/fantasy/full-01.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: палуба дирижабля над облаками, латунные механизмы и длинное пальто' },
+      { thumb: 'assets/img/fantasy/thumb-02.jpg', full: 'assets/img/fantasy/full-02.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: заснеженные руины горного храма, фонарь в руке' },
+      { thumb: 'assets/img/fantasy/thumb-03.jpg', full: 'assets/img/fantasy/full-03.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: старинная библиотека, карта и лупа на столе, бордовое пальто' },
+      { thumb: 'assets/img/fantasy/thumb-04.jpg', full: 'assets/img/fantasy/full-04.jpg', w: 848, h: 1264, alt: 'Fantasy-портрет: туманный лес, чёрный плащ и доспех, тропа между деревьями' }
     ]
   }
 ];
@@ -190,11 +185,15 @@ const PRICING = {
    Самый сильный аргумент на странице: человек видит, что из обычного селфи
    с телефона получается кадр из галереи.
 
-   ФАЙЛА ПОКА НЕТ. Положи исходное селфи в assets/img/source/source-01.jpg
-   и отправь на GitHub — блок появится сам. Пока файла нет, раздел удаляет
-   себя при загрузке, поэтому битой картинки на сайте не будет.
+   Исходник лежит в assets/img/source/source-01.jpg. Если файла нет, раздел
+   удаляет себя при загрузке, поэтому битой картинки на сайте не будет.
 
-   Если имя или размер файла другие — поправь src, w и h ниже.
+   Оба кадра приведены к одному размеру 848x1264, поэтому object-fit: cover
+   в .compare__before ничего не режет и лица не растягиваются. Селфи снято
+   вплотную, готовый кадр — поясной, так что масштаб лиц разный: это и есть
+   содержание блока, а не рассинхрон. Если менять исходник — кадрируй его
+   в те же пропорции 848x1264.
+
    WebP для исходника делать не обязательно: он выводится обычным <img>.
    ========================================================================== */
 
@@ -202,11 +201,11 @@ const COMPARE = {
   title: 'Из обычного селфи',
   tagline: 'снимок с телефона · готовый кадр',
   description:
-    'Слева — обычное селфи с телефона: рабочее кресло, белая стена, случайный свет, ничего специально не готовилось. Справа — кадр из раздела «Деловой портрет», собранный из этой же серии снимков. Потяни ползунок.',
+    'Слева — обычное селфи с телефона: комната, дневной свет из окна, футболка, ничего специально не готовилось. Справа — кадр из раздела «Деловой портрет», собранный из этой же серии снимков. Потяни ползунок.',
   before: {
     src: 'assets/img/source/source-01.jpg',
-    w: 960, h: 1280,
-    alt: 'Исходное селфи с телефона: белая стена, офисное кресло',
+    w: 848, h: 1264,
+    alt: 'Исходное селфи с телефона: светлая комната, дневной свет из окна, футболка',
     caption: 'Исходник'
   },
   after: {
