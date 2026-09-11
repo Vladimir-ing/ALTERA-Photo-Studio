@@ -680,6 +680,73 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Прямая ссылка с якорем                                              */
+  /* ------------------------------------------------------------------ */
+
+  /*
+   * Разделы галереи собираются этим скриптом, а браузер обрабатывает #якорь
+   * ещё во время разбора страницы — прыгать тогда некуда, секции ещё нет.
+   * Поэтому по ссылке вида ...#cinematic человек попадал на верх страницы
+   * и видел пустой первый экран вместо нужной серии. Доводим прокрутку сами.
+   *
+   * Обычные клики по меню сюда не попадают: к тому моменту секции на месте,
+   * и браузер справляется штатно, вместе со scroll-margin-top из CSS.
+   */
+
+  function sectionFromHash() {
+    const raw = decodeURIComponent((location.hash || '').replace(/^#/, '')).trim();
+    if (!raw) return null;
+    // старые адреса исчезнувших разделов ведут на их преемников
+    const id = (typeof ALIASES !== 'undefined' && ALIASES[raw]) || raw;
+    return document.getElementById(id);
+  }
+
+  function jumpToHash() {
+    const el = sectionFromHash();
+    if (!el) return false;
+
+    // Кадры нужного раздела грузим сразу. Ленивая загрузка рассчитана на
+    // прокрутку сверху вниз: при прыжке вглубь страницы плитки иначе
+    // остаются пустыми ровно там, куда человек и пришёл смотреть.
+    el.querySelectorAll('img[loading="lazy"]').forEach((img) => { img.loading = 'eager'; });
+
+    // 'instant' обязателен: у html стоит scroll-behavior: smooth, и открытие
+    // прямой ссылки превращалось бы в долгую прокрутку через всю страницу.
+    el.scrollIntoView({ behavior: 'instant', block: 'start' });
+    return true;
+  }
+
+  if (location.hash) {
+    // Человек тронул страницу сам — больше никуда её не двигаем
+    let touched = false;
+    const markTouched = () => { touched = true; };
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((ev) =>
+      window.addEventListener(ev, markTouched, { passive: true, once: true })
+    );
+
+    jumpToHash();
+
+    /*
+     * Повторный заход после загрузки картинок и шрифтов: они меняют высоту
+     * блоков выше цели, и первый прыжок уезжает на десятки пикселей.
+     * Позиции разделов пересчитываем перед этим — measure() их кеширует.
+     */
+    const settle = () => {
+      if (touched) return;
+      measure();
+      jumpToHash();
+    };
+    window.addEventListener('load', settle, { once: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle);
+  }
+
+  // Переход по якорю внутри страницы (в том числе назад-вперёд в браузере)
+  window.addEventListener('hashchange', () => {
+    const el = sectionFromHash();
+    if (el) el.querySelectorAll('img[loading="lazy"]').forEach((img) => { img.loading = 'eager'; });
+  });
+
+  /* ------------------------------------------------------------------ */
   /* Мелочи                                                              */
   /* ------------------------------------------------------------------ */
 

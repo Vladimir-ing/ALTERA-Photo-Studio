@@ -8,6 +8,15 @@
  *
  * Раздел с 4+ фото рисуется плотной мелкой сеткой, с 2-3 фото — крупными плитками.
  * Переключение автоматическое, ничего править не нужно.
+ *
+ * ПЯТЬ НАПРАВЛЕНИЙ (11.09.2026): деловой портрет, editorial / fashion,
+ * lifestyle cinematic, personal brand, fantasy / art.
+ *
+ * Про пути к файлам: имена папок в assets/img остались прежними —
+ * cinematic, casual, business. Они не совпадают с новыми названиями
+ * разделов, и это нормально: снимки те же самые, переименовывать файлы
+ * ради вывески смысла нет. Когда приедут новые серии, папки заведём
+ * по новым именам и пути здесь поменяются заодно.
  */
 
 const GALLERY = [
@@ -18,12 +27,10 @@ const GALLERY = [
     title: 'Деловой портрет',
     tagline: 'LinkedIn · сайт компании · пресс-релиз',
     description:
-      'Ровный свет, спокойная уверенность в кадре: студийный хедшот на нейтральном фоне и кадры за рабочим столом. Портрет, который не стыдно поставить первым в профиль и отправить в пресс-службу.',
+      'Ровный свет, спокойная уверенность в кадре: студийный хедшот на нейтральном фоне. Портрет, который не стыдно поставить первым в профиль и отправить в пресс-службу.',
     accent: '#3B6BFF',
     photos: [
       { thumb: 'assets/img/business/thumb-01.jpg', full: 'assets/img/business/full-01.jpg', w: 848, h: 1264, alt: 'Деловой портрет: тёмно-синий костюм и белая рубашка без галстука, открытая улыбка на сером фоне' },
-      { thumb: 'assets/img/business/thumb-02.jpg', full: 'assets/img/business/full-02.jpg', w: 848, h: 1264, alt: 'Деловой портрет: за рабочим столом у панорамного окна с видом на город' },
-      { thumb: 'assets/img/business/thumb-03.jpg', full: 'assets/img/business/full-03.jpg', w: 848, h: 1264, alt: 'Деловой портрет: кабинет в тёплых тонах, работа с ежедневником' },
       { thumb: 'assets/img/business/thumb-04.jpg', full: 'assets/img/business/full-04.jpg', w: 848, h: 1264, alt: 'Деловой портрет: костюм с галстуком, классический студийный хедшот для LinkedIn' }
     ]
   },
@@ -31,7 +38,7 @@ const GALLERY = [
     id: 'editorial',
     short: 'Editorial',
     num: '02',
-    title: 'Editorial / Glossy',
+    title: 'Editorial / Fashion',
     tagline: 'обложка · промо · афиша',
     description:
       'Жёсткий контраст, глубокие тени, цветные гелевые светофильтры и характер вместо вежливой улыбки. Кадр в логике журнальной обложки — цепляет взгляд в ленте с первой секунды.',
@@ -44,42 +51,55 @@ const GALLERY = [
     ]
   },
   {
+    /*
+     * Объединение Cinematic и Casual Lifestyle (11.09.2026).
+     * id оставлен прежний — по ссылке #cinematic раздел по-прежнему
+     * открывается. Старый якорь #casual ведёт сюда же, его переадресует
+     * main.js.
+     */
     id: 'cinematic',
-    short: 'Cinematic',
+    short: 'Lifestyle',
     num: '03',
-    title: 'Cinematic',
-    tagline: 'атмосферный кадр как из фильма',
+    title: 'Lifestyle Cinematic',
+    tagline: 'соцсети · личный блог · знакомства',
     description:
-      'Закатный свет, неон под дождём, холодный индустриальный интерьер. Не портрет, а сцена — с настроением и ощущением, что кадр вырезан из фильма.',
+      'Естественные кадры с атмосферой кино: прогулки, поездки, кафе, городские улицы и повседневные моменты. Живые эмоции, разные планы, движение и ощущение настоящей съёмки.',
     accent: '#FF7A18',
     photos: [
-      { thumb: 'assets/img/cinematic/thumb-01.jpg', full: 'assets/img/cinematic/full-01.jpg', w: 848, h: 1264, alt: 'Кинематографичный портрет: закатный свет на городской улице, огни в расфокусе' },
-      { thumb: 'assets/img/cinematic/thumb-02.jpg', full: 'assets/img/cinematic/full-02.jpg', w: 848, h: 1264, alt: 'Кинематографичный портрет: заброшенный цех, холодная зелёно-серая гамма' },
-      { thumb: 'assets/img/cinematic/thumb-03.jpg', full: 'assets/img/cinematic/full-03.jpg', w: 848, h: 1264, alt: 'Кинематографичный портрет: ночная улица под дождём, неоновые вывески в синем и розовом' },
-      { thumb: 'assets/img/cinematic/thumb-04.jpg', full: 'assets/img/cinematic/full-04.jpg', w: 848, h: 1264, alt: 'Кинематографичный портрет: сумерки, тёплая неоновая вывеска и боке городских огней' }
+      { thumb: 'assets/img/casual/thumb-01.jpg', full: 'assets/img/casual/full-01.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: осенний парк, жёлтая листва в расфокусе, серый свитшот' },
+      { thumb: 'assets/img/cinematic/thumb-01.jpg', full: 'assets/img/cinematic/full-01.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: закатный свет на городской улице, огни в расфокусе' },
+      { thumb: 'assets/img/casual/thumb-02.jpg', full: 'assets/img/casual/full-02.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: у окна дома, мягкий дневной свет, искренняя улыбка' },
+      { thumb: 'assets/img/cinematic/thumb-03.jpg', full: 'assets/img/cinematic/full-03.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: ночная улица под дождём, неоновые вывески в синем и розовом' },
+      { thumb: 'assets/img/casual/thumb-04.jpg', full: 'assets/img/casual/full-04.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: веранда кафе, джинсовая рубашка, широкая улыбка' },
+      { thumb: 'assets/img/cinematic/thumb-04.jpg', full: 'assets/img/cinematic/full-04.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: сумерки, тёплая неоновая вывеска и боке городских огней' },
+      { thumb: 'assets/img/casual/thumb-03.jpg', full: 'assets/img/casual/full-03.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: берег моря, светлая рубашка, спокойный горизонт' },
+      { thumb: 'assets/img/cinematic/thumb-02.jpg', full: 'assets/img/cinematic/full-02.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: заброшенный цех, холодная зелёно-серая гамма' }
     ]
   },
   {
-    id: 'casual',
-    short: 'Casual',
+    /*
+     * Новое направление (11.09.2026). Своей серии пока нет — до её
+     * подготовки здесь стоят два кадра из деловой съёмки, которые как раз
+     * про рабочие сцены, а не про хедшот. Файлы лежат в assets/img/business.
+     */
+    id: 'personal',
+    short: 'Personal',
     num: '04',
-    title: 'Casual Lifestyle',
-    tagline: 'соцсети · знакомства · личный блог',
+    title: 'Personal Brand',
+    tagline: 'эксперт · предприниматель · личный бренд',
     description:
-      'Живая мимика и мягкий дневной свет: осенний парк, окно дома, берег моря, веранда кафе. Ощущение случайного кадра, который сделал друг, — но с качеством студийной съёмки.',
+      'Фотографии, которые показывают не только внешность, но и характер, профессию и образ жизни. Рабочие сцены, выступления, встречи, увлечения, поясные и ростовые кадры.',
     accent: '#00E08F',
     photos: [
-      { thumb: 'assets/img/casual/thumb-01.jpg', full: 'assets/img/casual/full-01.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: осенний парк, жёлтая листва в расфокусе, серый свитшот' },
-      { thumb: 'assets/img/casual/thumb-02.jpg', full: 'assets/img/casual/full-02.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: у окна дома, мягкий дневной свет, искренняя улыбка' },
-      { thumb: 'assets/img/casual/thumb-03.jpg', full: 'assets/img/casual/full-03.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: берег моря, светлая рубашка, спокойный горизонт' },
-      { thumb: 'assets/img/casual/thumb-04.jpg', full: 'assets/img/casual/full-04.jpg', w: 848, h: 1264, alt: 'Lifestyle-портрет: веранда кафе, джинсовая рубашка, широкая улыбка' }
+      { thumb: 'assets/img/business/thumb-02.jpg', full: 'assets/img/business/full-02.jpg', w: 848, h: 1264, alt: 'Имиджевый портрет: за рабочим столом у панорамного окна с видом на город' },
+      { thumb: 'assets/img/business/thumb-03.jpg', full: 'assets/img/business/full-03.jpg', w: 848, h: 1264, alt: 'Имиджевый портрет: кабинет в тёплых тонах, работа с ежедневником' }
     ]
   },
   {
     id: 'fantasy',
     short: 'Fantasy',
     num: '05',
-    title: 'Fantasy / Арт',
+    title: 'Fantasy / Art',
     tagline: 'аватар · обложка · подарок',
     description:
       'Четыре разных мира: стимпанк-город, снежные вершины, древняя библиотека, туманный лес. Стиль для тех, кому нужен не портрет, а образ — на аватар, обложку или в подарок.',
@@ -92,6 +112,12 @@ const GALLERY = [
     ]
   }
 ];
+
+/*
+ * Старые якоря, по которым могли остаться ссылки снаружи.
+ * Ключ — исчезнувший раздел, значение — куда он переехал.
+ */
+const ALIASES = { casual: 'cinematic' };
 
 /* ==========================================================================
    Контакты. Держим в одном месте: подставляются и в футер, и в кнопки
@@ -136,14 +162,14 @@ const PRICING = {
   shots: '20 готовых кадров — по 4 на каждое направление',
 
   extra: {
-    price: '+1 000 ₽',
+    price: '+1 000 ₽',
     unit: 'за каждый образ под задачу',
     note: 'Свой сюжет, костюм и место действия. Пять направлений с этой страницы уже входят в цену фотосессии.'
   },
 
   items: [
     'Кадры в высоком разрешении — для аватара, резюме, соцсетей и печати',
-    'Все пять направлений: деловой, editorial, cinematic, casual и fantasy',
+    'Все пять направлений: деловой портрет, editorial, lifestyle cinematic, personal brand и fantasy',
     'Отбор лучших кадров вместе с тобой',
     'Правки по выбранным кадрам входят в работу',
     'Исходники и настроенная модель удаляются после сдачи'
