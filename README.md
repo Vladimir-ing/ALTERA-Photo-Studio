@@ -14,7 +14,7 @@ AI TERRA — сервис AI-фотосессий. ALTERA — студия, ко
 
 | Где | Что это |
 |---|---|
-| `C:\Users\PC\Documents\Z.Ai\ALTERA\AI_TERRA-Photo-Studio` | рабочая папка на компьютере |
+| `C:\Users\PC\Documents\ALTERA\AI_TERRA-Photo-Studio` | рабочая папка на компьютере |
 | https://github.com/Vladimir-ing/ALTERA-Photo-Studio | GitHub, отсюда собирается живой сайт |
 
 **Правило: любая правка должна попасть в оба места.** Живой сайт
@@ -28,14 +28,14 @@ AI TERRA — сервис AI-фотосессий. ALTERA — студия, ко
 Открой терминал в папке проекта и выполни:
 
 ```bash
-cd "C:\Users\PC\Documents\Z.Ai\ALTERA\AI_TERRA-Photo-Studio"
+cd "C:\Users\PC\Documents\ALTERA\AI_TERRA-Photo-Studio"
 git pull
 ```
 
 Если папка пустая или в ней нет `.git`, сначала забери проект целиком:
 
 ```bash
-cd "C:\Users\PC\Documents\Z.Ai\ALTERA"
+cd "C:\Users\PC\Documents\ALTERA"
 git clone https://github.com/Vladimir-ing/ALTERA-Photo-Studio.git
 ```
 
