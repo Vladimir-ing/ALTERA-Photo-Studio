@@ -338,6 +338,62 @@
   });
 
   /* ------------------------------------------------------------------ */
+  /* Ещё образы                                                          */
+  /* ------------------------------------------------------------------ */
+
+  // Лента карточек дополнительных стилей. Стиль без кадров в текущей серии
+  // пропускается, блок без единой карточки прячется целиком.
+  const extraSlot = $('#extra-slot');
+  let extraEl = null;
+
+  function renderExtra() {
+    if (!extraEl) return;
+    const cards = EXTRA_STYLES
+      .map((st) => ({ st: st, photo: photosOf(st)[0] }))
+      .filter((c) => c.photo);
+
+    extraEl.hidden = cards.length === 0;
+    $('.extra__track', extraEl).innerHTML = cards.map((c) =>
+      '<li class="extra-card">' +
+        '<div class="extra-card__img">' +
+          picture(c.photo.thumb, 'alt="' + esc(c.photo.alt) + '" width="' + c.photo.w + '" height="' + c.photo.h + '"' +
+            ' loading="lazy" decoding="async"') +
+        '</div>' +
+        '<div class="extra-card__body">' +
+          '<p class="extra-card__tagline">' + esc(c.st.tagline || '') + '</p>' +
+          '<h3 class="extra-card__title">' + esc(c.st.title) + '</h3>' +
+          '<p class="extra-card__desc">' + esc(c.st.description || '') + '</p>' +
+          '<a class="link-more" href="' + esc(messengerUrl('telegram', CONTACT.greetingForExtra(c.st.title))) + '"' +
+            ' target="_blank" rel="noopener noreferrer">Добавить к заказу</a>' +
+        '</div>' +
+      '</li>'
+    ).join('');
+  }
+
+  if (extraSlot && typeof EXTRA_STYLES !== 'undefined' && EXTRA_STYLES.length &&
+      typeof CONTACT !== 'undefined' && CONTACT.greetingForExtra) {
+    const el = document.createElement('section');
+    el.className = 'extra';
+    el.id = 'extra';
+    el.setAttribute('aria-labelledby', 'extra-title');
+    el.innerHTML =
+      '<div class="wrap">' +
+        '<div class="section-head reveal">' +
+          '<p class="eyebrow">Ещё образы</p>' +
+          '<h2 class="section-title" id="extra-title">Больше стилей. <span class="dim">' +
+            // неразрывные пробелы: сумма не должна рваться на «+1» и «000 ₽»
+            esc((PRICING.extra ? PRICING.extra.price : '+1 000 ₽').replace(/ /g, ' ')) +
+            ' за каждый.</span></h2>' +
+          '<p class="section-lead">Добавь к фотосессии любой из этих образов — сверх пяти основных направлений.</p>' +
+        '</div>' +
+      '</div>' +
+      '<ul class="extra__track"></ul>';
+    extraSlot.appendChild(el);
+    extraEl = el;
+    renderExtra();
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Смена серии                                                         */
   /* ------------------------------------------------------------------ */
 
@@ -356,6 +412,7 @@
     renderDeck();
     renderCompare();
     GALLERY.forEach((section, i) => renderGrid(section, styleEls[i]));
+    renderExtra();
     markSwitches();
     afterSeriesChange();
   }
