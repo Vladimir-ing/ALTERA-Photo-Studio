@@ -96,13 +96,52 @@
   });
 
   /* ------------------------------------------------------------------ */
+  /* Серия: мужская или женская фотосессия                               */
+  /* ------------------------------------------------------------------ */
+
+  /*
+   * Выбор серии живёт в трёх местах по старшинству: параметр ?s= в адресе
+   * (чтобы можно было дать ссылку сразу на женскую серию), память браузера
+   * и, если нигде ничего нет, первая серия из SERIES.
+   * Память браузера может быть недоступна (приватный режим) — тогда просто
+   * ничего не запоминаем.
+   */
+  const SERIES_LIST = (typeof SERIES !== 'undefined' && SERIES.length)
+    ? SERIES : [{ id: 'man', label: 'Мужчина' }];
+  const SERIES_KEY = 'aiterra-series';
+  const isSeries = (id) => SERIES_LIST.some((s) => s.id === id);
+
+  let series = (function () {
+    const fromUrl = new URLSearchParams(location.search).get('s');
+    if (isSeries(fromUrl)) return fromUrl;
+    try {
+      const saved = localStorage.getItem(SERIES_KEY);
+      if (isSeries(saved)) return saved;
+    } catch (e) { /* без памяти — берём серию по умолчанию */ }
+    return SERIES_LIST[0].id;
+  })();
+
+  const photosOf = (section) => (section.photos && section.photos[series]) || [];
+
+  // Переключатель в духе iOS: две кнопки, нажатая подсвечена плашкой
+  function seriesSwitch() {
+    const box = document.createElement('div');
+    box.className = 'series-switch';
+    box.setAttribute('role', 'group');
+    box.setAttribute('aria-label', 'Чья фотосессия');
+    box.innerHTML = SERIES_LIST.map((s) =>
+      '<button type="button" class="series-switch__btn" data-series="' + s.id + '">' + esc(s.label) + '</button>'
+    ).join('');
+    return box;
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Хиро: колода портретов                                              */
   /* ------------------------------------------------------------------ */
 
   // По кадру из каждого стиля. Место карточки в колоде задают --o (смещение
   // от центра: …-2, -1, 0, 1, 2…) и --d (глубина, модуль смещения); их
   // пересчитывает placeDeck(), а таймер ниже сдвигает колоду на шаг.
-  // Первый кадр грузим сразу: он попадает на первый экран.
   const stack = $('.hero__stack');
   const stackCards = [];
   let deckTop = 0;
@@ -118,22 +157,36 @@
     });
   }
 
-  if (stack) {
-    GALLERY.forEach((section, i) => {
-      const photo = section.photos[0];
+  // Карточки создаются один раз, при смене серии меняются только кадры.
+  // Первый кадр грузим сразу: он попадает на первый экран.
+  function renderDeck() {
+    stackCards.forEach((card, i) => {
+      const photo = photosOf(GALLERY[i])[0];
+      card.hidden = !photo;
       if (!photo) return;
+      $('.hero__card-img', card).innerHTML =
+        picture(photo.thumb, 'alt="" width="' + photo.w + '" height="' + photo.h + '"' +
+          (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') + ' decoding="async"');
+    });
+  }
 
+  if (stack) {
+    GALLERY.forEach((section) => {
       const card = document.createElement('div');
       card.className = 'hero__card';
       card.innerHTML =
-        picture(photo.thumb, 'alt="" width="' + photo.w + '" height="' + photo.h + '"' +
-          (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') + ' decoding="async"') +
+        '<div class="hero__card-img"></div>' +
         '<span class="hero__card-name">' + esc(section.title) + '</span>';
       stack.appendChild(card);
       stackCards.push(card);
     });
+    renderDeck();
     placeDeck();
   }
+
+  // Переключатель на первом экране — сразу над колодой
+  const heroSlot = $('.hero__series');
+  if (heroSlot && SERIES_LIST.length > 1) heroSlot.appendChild(seriesSwitch());
 
   /* ------------------------------------------------------------------ */
   /* Исходник → результат                                                */
@@ -141,7 +194,24 @@
 
   // Раздела нет, пока в данных нет исходного снимка — см. COMPARE
   // в gallery-data.js. Пустой блок лучше не показывать вовсе.
-  if (typeof COMPARE !== 'undefined' && COMPARE && COMPARE.before && COMPARE.after) {
+  const compareOf = () => (typeof COMPARE !== 'undefined' && COMPARE && COMPARE[series]) || null;
+  let compareEl = null;
+
+  function renderCompare() {
+    if (!compareEl) return;
+    const c = compareOf();
+    compareEl.hidden = !c;
+    if (!c) return;
+    $('.compare__after', compareEl).innerHTML =
+      picture(c.after.src, 'alt="' + esc(c.after.alt) + '"' +
+        ' width="' + c.after.w + '" height="' + c.after.h + '" decoding="async"');
+    const before = $('.compare__before', compareEl);
+    before.src = c.before.src;
+    before.alt = c.before.alt;
+    $('.compare__text .style__desc', compareEl).textContent = c.description || '';
+  }
+
+  if (compareOf()) {
     const slot = $('#compare-slot');
     const el = document.createElement('section');
     el.className = 'compare';
@@ -152,31 +222,29 @@
         '<div class="compare__grid reveal">' +
           '<div>' +
             '<div class="compare__viewer" style="--pos:50%">' +
-              picture(COMPARE.after.src, 'alt="' + esc(COMPARE.after.alt) + '"' +
-                ' width="' + COMPARE.after.w + '" height="' + COMPARE.after.h + '" decoding="async"') +
+              '<div class="compare__after"></div>' +
               // Исходник — обычный <img>, а не <picture>: WebP-версии у него может
               // не быть, а <source> с несуществующим файлом не откатывается
               // на <img>, а просто ломает картинку.
-              '<img class="compare__before" src="' + esc(COMPARE.before.src) + '"' +
-                ' alt="' + esc(COMPARE.before.alt) + '"' +
-                ' width="' + COMPARE.before.w + '" height="' + COMPARE.before.h + '" decoding="async">' +
+              '<img class="compare__before" alt="" width="848" height="1264" decoding="async">' +
               '<div class="compare__handle" aria-hidden="true"></div>' +
               '<input class="compare__range" type="range" min="0" max="100" value="50" step="1"' +
                 ' aria-label="Сдвинуть границу между исходником и результатом">' +
             '</div>' +
             '<div class="compare__tags" aria-hidden="true">' +
-              '<span>' + esc(COMPARE.before.caption || 'Исходник') + '</span>' +
-              '<span>' + esc(COMPARE.after.caption || 'Результат') + '</span>' +
+              '<span>Исходник</span><span>Результат</span>' +
             '</div>' +
           '</div>' +
           '<div class="compare__text">' +
             '<p class="eyebrow">' + esc(COMPARE.tagline || 'Исходник и результат') + '</p>' +
             '<h2 class="style__title" id="compare-title">' + esc(COMPARE.title || 'Из обычного снимка') + '</h2>' +
-            '<p class="style__desc">' + esc(COMPARE.description || '') + '</p>' +
+            '<p class="style__desc"></p>' +
           '</div>' +
         '</div>' +
       '</div>';
     slot.appendChild(el);
+    compareEl = el;
+    renderCompare();
 
     const viewer = $('.compare__viewer', el);
     const range = $('.compare__range', el);
@@ -184,10 +252,12 @@
     range.addEventListener('input', move);
     move();
 
-    // Если исходника ещё нет в assets/img/source/, раздел убирает себя сам.
+    // Если исходника ещё нет в assets/img/source/, раздел прячется сам.
     // Так данные можно заполнить заранее, а файл дослать позже: до этого
     // на странице просто нет блока, а не битая картинка во весь экран.
-    $('.compare__before', el).addEventListener('error', () => el.remove());
+    const before = $('.compare__before', el);
+    before.addEventListener('error', () => { el.hidden = true; });
+    before.addEventListener('load', () => { el.hidden = false; });
   }
 
   /* ------------------------------------------------------------------ */
@@ -206,16 +276,26 @@
     return many;
   }
 
-  GALLERY.forEach((section) => {
-    const isFeature = section.photos.length <= FEATURE_LIMIT;
-    const count = section.photos.length;
+  // Переключатель над разделами прилипает под шапкой, пока открыты галереи:
+  // листая женскую серию, не нужно возвращаться наверх, чтобы сменить её.
+  if (SERIES_LIST.length > 1) {
+    const bar = document.createElement('div');
+    bar.className = 'series-bar';
+    bar.appendChild(seriesSwitch());
+    work.appendChild(bar);
+  }
 
-    const el = document.createElement('section');
-    el.className = 'style';
-    el.id = section.id;
-    el.setAttribute('aria-labelledby', section.id + '-title');
+  // Сетка раздела под текущую серию: плитки, счётчик кадров, раскладка
+  function renderGrid(section, el) {
+    const photos = photosOf(section);
+    const count = photos.length;
+    const grid = $('.grid', el);
 
-    const tiles = section.photos.map((photo, i) =>
+    grid.className = 'grid' + (count <= FEATURE_LIMIT ? ' grid--feature' : '');
+    // --cols нужен обеим раскладкам: он не даёт ряду растянуться шире,
+    // чем требует фактическое число кадров
+    grid.style.setProperty('--cols', count);
+    grid.innerHTML = photos.map((photo, i) =>
       '<li class="tile">' +
         '<button class="tile__btn" type="button" data-section="' + section.id + '" data-index="' + i + '"' +
           ' aria-label="Открыть фото ' + (i + 1) + ' из ' + count + ', стиль «' + esc(section.title) + '»">' +
@@ -225,6 +305,16 @@
         '</button>' +
       '</li>'
     ).join('');
+    $('.style__count', el).textContent = count + ' ' + plural(count, 'кадр', 'кадра', 'кадров');
+    // раздел без кадров в этой серии не показываем вовсе
+    el.hidden = count === 0;
+  }
+
+  const styleEls = GALLERY.map((section) => {
+    const el = document.createElement('section');
+    el.className = 'style';
+    el.id = section.id;
+    el.setAttribute('aria-labelledby', section.id + '-title');
 
     el.innerHTML =
       '<div class="wrap">' +
@@ -236,16 +326,69 @@
           '</div>' +
           '<div>' +
             '<p class="style__desc">' + esc(section.description) + '</p>' +
-            '<p class="style__count">' + count + ' ' + plural(count, 'кадр', 'кадра', 'кадров') + '</p>' +
+            '<p class="style__count"></p>' +
           '</div>' +
         '</header>' +
-        // --cols нужен обеим раскладкам: он не даёт ряду растянуться шире,
-        // чем требует фактическое число кадров
-        '<ul class="grid' + (isFeature ? ' grid--feature' : '') + '" style="--cols:' + count + '">' + tiles + '</ul>' +
+        '<ul class="grid"></ul>' +
       '</div>';
 
+    renderGrid(section, el);
     work.appendChild(el);
+    return el;
   });
+
+  /* ------------------------------------------------------------------ */
+  /* Смена серии                                                         */
+  /* ------------------------------------------------------------------ */
+
+  function markSwitches() {
+    document.querySelectorAll('.series-switch__btn').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.series === series));
+    });
+  }
+
+  // Высоты разделов после смены серии могут измениться, и подсветке меню
+  // нужны свежие замеры. Сама функция замера объявлена ниже — сюда её
+  // подставляет блок подсветки меню.
+  let afterSeriesChange = () => {};
+
+  function applySeries() {
+    renderDeck();
+    renderCompare();
+    GALLERY.forEach((section, i) => renderGrid(section, styleEls[i]));
+    markSwitches();
+    afterSeriesChange();
+  }
+
+  function setSeries(id) {
+    if (!isSeries(id) || id === series) return;
+    series = id;
+    try { localStorage.setItem(SERIES_KEY, id); } catch (e) { /* без памяти */ }
+
+    // Адрес отражает выбор — ссылку можно переслать как есть
+    try {
+      const url = new URL(location.href);
+      if (id === SERIES_LIST[0].id) url.searchParams.delete('s'); else url.searchParams.set('s', id);
+      history.replaceState(history.state, '', url);
+    } catch (e) { /* при открытии с диска адрес может не меняться — не страшно */ }
+
+    // Кадры гаснут, меняются и проявляются снова: без этого подмена
+    // выглядит как мигание
+    if (prefersReducedMotion) { applySeries(); return; }
+    const root = document.documentElement;
+    root.classList.add('series-fading');
+    setTimeout(() => {
+      applySeries();
+      requestAnimationFrame(() => root.classList.remove('series-fading'));
+    }, 220);
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.series-switch__btn');
+    if (btn) setSeries(btn.dataset.series);
+  });
+
+  markSwitches();
 
   /* ------------------------------------------------------------------ */
   /* Цена                                                                */
@@ -444,6 +587,8 @@
     }
   }
 
+  afterSeriesChange = measure;
+
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', measure, { passive: true });
   window.addEventListener('load', measure);
@@ -485,7 +630,7 @@
   let lastFocused = null;
 
   function show(index) {
-    const photos = currentSection.photos;
+    const photos = photosOf(currentSection);
     // листаем по кругу в пределах одного раздела
     currentIndex = (index + photos.length) % photos.length;
     const photo = photos[currentIndex];
@@ -514,7 +659,7 @@
 
   function openLightbox(sectionId, index, trigger) {
     currentSection = GALLERY.find((s) => s.id === sectionId);
-    if (!currentSection) return;
+    if (!currentSection || !photosOf(currentSection).length) return;
 
     lastFocused = trigger || null;
     show(index);

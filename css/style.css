@@ -362,6 +362,10 @@ button {
   transition: opacity .6s var(--ease);
 }
 
+/* Карточка прячется, если в серии нет кадра для её стиля */
+.hero__card[hidden] { display: none; }
+.hero__card-img { position: absolute; inset: 0; }
+
 /* Три факта под колодой — строка цифр, как характеристики на странице продукта */
 .hero__facts {
   display: grid;
@@ -384,6 +388,68 @@ button {
   color: var(--muted);
   line-height: 1.35;
 }
+
+/* --- Переключатель серии ----------------------------------------------- */
+
+/* Сегментный переключатель, как в iOS: серая капсула, выбранная кнопка —
+   светлая плашка внутри неё */
+.series-switch {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 980px;
+  background: rgba(118, 118, 128, .24);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.series-switch__btn {
+  min-width: 7.5rem;
+  padding: .5rem 1.2rem;
+  border-radius: 980px;
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--soft);
+  transition: background-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease);
+}
+.series-switch__btn:hover { color: var(--text); }
+.series-switch__btn[aria-pressed="true"] {
+  background: #636366;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .35);
+}
+
+.hero__series {
+  display: flex;
+  justify-content: center;
+  margin: -1.5rem 0 clamp(1.8rem, 3.5vw, 2.6rem);
+}
+
+/* Над галереями переключатель прилипает под шапкой, пока открыт блок #work */
+.series-bar {
+  position: sticky;
+  top: calc(var(--header-h) + .75rem);
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  padding-top: clamp(3rem, 7vw, 5rem);
+  margin-bottom: calc(-1 * clamp(1rem, 3vw, 2.5rem));
+  pointer-events: none;
+}
+.series-bar .series-switch {
+  pointer-events: auto;
+  background: rgba(58, 58, 60, .72);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+}
+
+/* Смена серии: кадры коротко гаснут и проявляются уже новые */
+.grid,
+.hero__card-img,
+.compare__viewer {
+  transition: opacity .22s var(--ease);
+}
+.series-fading .grid,
+.series-fading .hero__card-img,
+.series-fading .compare__viewer { opacity: 0; }
 
 /* --- Разделы-галереи --------------------------------------------------- */
 
