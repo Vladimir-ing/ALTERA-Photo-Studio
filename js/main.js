@@ -1,6 +1,6 @@
 /*
- * Сборка страницы из данных (js/gallery-data.js): меню, хиро, галереи,
- * пакеты, вопросы, лайтбокс и скролл-эффекты.
+ * Сборка страницы из данных (js/gallery-data.js): меню, колода портретов,
+ * галереи, цена, вопросы, лайтбокс и появление блоков при прокрутке.
  * Без зависимостей — файл подключается обычным <script> и работает как с сервера,
  * так и при открытии index.html с диска.
  */
@@ -91,34 +91,32 @@
     link.href = '#' + section.id;
     // короткое имя: полные названия не помещаются в узкое меню
     link.textContent = section.short || section.title;
-    link.style.setProperty('--nav-accent', section.accent);
     link.dataset.target = section.id;
     nav.appendChild(link);
   });
 
   /* ------------------------------------------------------------------ */
-  /* Хиро: полоса превью и стек портретов                                */
+  /* Хиро: колода портретов                                              */
   /* ------------------------------------------------------------------ */
 
-  const flowOut = $('.flow__out');
-
-  GALLERY.forEach((section) => {
-    const photo = section.photos[0];
-    if (!photo) return;
-
-    const li = document.createElement('li');
-    li.innerHTML =
-      '<a class="flow__chip" href="#' + section.id + '" style="--accent:' + section.accent + '">' +
-        picture(photo.thumb, 'alt="" width="' + photo.w + '" height="' + photo.h + '" loading="lazy" decoding="async"') +
-        '<span class="flow__chip-name">' + esc(section.short || section.title) + '</span>' +
-      '</a>';
-    flowOut.appendChild(li);
-  });
-
-  // Веер из пяти кадров в правой колонке. --i — место в колоде, его крутит
-  // таймер ниже. Первый кадр грузим сразу: он попадает на первый экран.
+  // По кадру из каждого стиля. Место карточки в колоде задают --o (смещение
+  // от центра: …-2, -1, 0, 1, 2…) и --d (глубина, модуль смещения); их
+  // пересчитывает placeDeck(), а таймер ниже сдвигает колоду на шаг.
+  // Первый кадр грузим сразу: он попадает на первый экран.
   const stack = $('.hero__stack');
   const stackCards = [];
+  let deckTop = 0;
+
+  function placeDeck() {
+    const n = stackCards.length;
+    stackCards.forEach((card, i) => {
+      const rel = (i - deckTop + n) % n;
+      // половина колоды справа от центра, половина слева
+      const o = rel <= n / 2 ? rel : rel - n;
+      card.style.setProperty('--o', o);
+      card.style.setProperty('--d', Math.abs(o));
+    });
+  }
 
   if (stack) {
     GALLERY.forEach((section, i) => {
@@ -127,27 +125,15 @@
 
       const card = document.createElement('div');
       card.className = 'hero__card';
-      card.style.setProperty('--i', i);
-      card.style.setProperty('--accent', section.accent);
       card.innerHTML =
         picture(photo.thumb, 'alt="" width="' + photo.w + '" height="' + photo.h + '"' +
           (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') + ' decoding="async"') +
-        '<span class="hero__card-name">' + esc(section.short || section.title) + '</span>';
+        '<span class="hero__card-name">' + esc(section.title) + '</span>';
       stack.appendChild(card);
       stackCards.push(card);
     });
+    placeDeck();
   }
-
-  /* ------------------------------------------------------------------ */
-  /* Бегущая строка                                                      */
-  /* ------------------------------------------------------------------ */
-
-  const marqueeTrack = $('.marquee__track');
-  const marqueeHtml = GALLERY.map((s) =>
-    '<span class="marquee__item" style="--accent:' + s.accent + '">' + esc(s.title) + '</span>'
-  ).join('');
-  // Содержимое дублируется: трек уезжает ровно на половину и склейки не видно
-  marqueeTrack.innerHTML = marqueeHtml + marqueeHtml;
 
   /* ------------------------------------------------------------------ */
   /* Исходник → результат                                                */
@@ -163,8 +149,6 @@
     el.setAttribute('aria-labelledby', 'compare-title');
     el.innerHTML =
       '<div class="wrap">' +
-        '<p class="eyebrow reveal">' + esc(COMPARE.tagline || 'Исходник и результат') + '</p>' +
-        '<h2 class="section-title reveal" id="compare-title">' + esc(COMPARE.title || 'Из обычного снимка') + '</h2>' +
         '<div class="compare__grid reveal">' +
           '<div>' +
             '<div class="compare__viewer" style="--pos:50%">' +
@@ -185,7 +169,11 @@
               '<span>' + esc(COMPARE.after.caption || 'Результат') + '</span>' +
             '</div>' +
           '</div>' +
-          '<p class="style__desc">' + esc(COMPARE.description || '') + '</p>' +
+          '<div class="compare__text">' +
+            '<p class="eyebrow">' + esc(COMPARE.tagline || 'Исходник и результат') + '</p>' +
+            '<h2 class="style__title" id="compare-title">' + esc(COMPARE.title || 'Из обычного снимка') + '</h2>' +
+            '<p class="style__desc">' + esc(COMPARE.description || '') + '</p>' +
+          '</div>' +
         '</div>' +
       '</div>';
     slot.appendChild(el);
@@ -225,7 +213,6 @@
     const el = document.createElement('section');
     el.className = 'style';
     el.id = section.id;
-    el.style.setProperty('--accent', section.accent);
     el.setAttribute('aria-labelledby', section.id + '-title');
 
     const tiles = section.photos.map((photo, i) =>
@@ -242,13 +229,15 @@
     el.innerHTML =
       '<div class="wrap">' +
         '<header class="style__head reveal">' +
-          '<span class="style__num" aria-hidden="true">' + section.num + '</span>' +
           '<div>' +
+            '<span class="style__num" aria-hidden="true">' + section.num + '</span>' +
             '<h2 class="style__title" id="' + section.id + '-title">' + esc(section.title) + '</h2>' +
             '<p class="style__tagline">' + esc(section.tagline) + '</p>' +
           '</div>' +
-          '<p class="style__desc">' + esc(section.description) + '</p>' +
-          '<p class="style__count">' + count + ' ' + plural(count, 'кадр', 'кадра', 'кадров') + '</p>' +
+          '<div>' +
+            '<p class="style__desc">' + esc(section.description) + '</p>' +
+            '<p class="style__count">' + count + ' ' + plural(count, 'кадр', 'кадра', 'кадров') + '</p>' +
+          '</div>' +
         '</header>' +
         // --cols нужен обеим раскладкам: он не даёт ряду растянуться шире,
         // чем требует фактическое число кадров
@@ -278,6 +267,7 @@
       '<div class="price reveal">' +
         '<div class="price__main">' +
           '<p class="price__value">' + esc(PRICING.price) + '</p>' +
+          (PRICING.priceNote ? '<p class="price__note">' + esc(PRICING.priceNote) + '</p>' : '') +
           '<p class="price__unit">' + esc(PRICING.unit) + '</p>' +
           // Доплата необязательна: нет PRICING.extra — второй строки нет
           (PRICING.extra
@@ -393,11 +383,10 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Прогресс скролла, активный пункт меню, липкая кнопка                */
+  /* Активный пункт меню и липкая кнопка                                 */
   /* ------------------------------------------------------------------ */
 
   const header = $('.site-header');
-  const progress = $('.site-header__progress');
   const dock = $('#cta-dock');
   const hero = $('.hero');
   const navLinks = Array.from(nav.querySelectorAll('.nav__link'));
@@ -411,7 +400,6 @@
   const packagesEl = document.getElementById('packages');
 
   let sectionTops = [];
-  let maxScroll = 1;
   let headerHeight = 0;
   let heroBottom = 0;
   let packagesRange = [Infinity, Infinity];
@@ -424,7 +412,6 @@
   function measure() {
     headerHeight = header.offsetHeight;
     sectionTops = sections.map((el) => (el ? el.getBoundingClientRect().top + window.scrollY : Infinity));
-    maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     heroBottom = hero ? hero.getBoundingClientRect().bottom + window.scrollY : 0;
     if (packagesEl) {
       const r = packagesEl.getBoundingClientRect();
@@ -435,8 +422,6 @@
 
   function update() {
     const y = window.scrollY;
-    progress.style.setProperty('--progress', Math.min(100, (y / maxScroll) * 100).toFixed(2) + '%');
-
     // Активен тот раздел, чей верх последним ушёл выше линии под шапкой
     const line = y + headerHeight + 40;
     let activeIndex = -1;
@@ -532,7 +517,6 @@
     if (!currentSection) return;
 
     lastFocused = trigger || null;
-    lightbox.style.setProperty('--accent', currentSection.accent);
     show(index);
 
     lightbox.hidden = false;
@@ -607,76 +591,33 @@
   }, { passive: true });
 
   /* ------------------------------------------------------------------ */
-  /* Движение: параллакс, колода, магнитные кнопки                       */
+  /* Движение: колода портретов                                          */
   /* ------------------------------------------------------------------ */
 
-  if (!prefersReducedMotion) {
-    // Свечения и знак чуть уводит за курсором. Считаем в rAF и только когда
-    // указатель действительно двигался: пустых кадров не крутим.
-    const glowA = $('.hero__glow--a');
-    const glowB = $('.hero__glow--b');
-    const heroLogo = $('.hero__logo');
+  // Колода сдвигается на шаг влево. Крутим только пока хиро на экране —
+  // фоновая анимация впустую греет батарею.
+  if (!prefersReducedMotion && stackCards.length > 1) {
+    let timer = null;
 
-    if (hero && window.matchMedia('(pointer: fine)').matches) {
-      let px = 0, py = 0, queued = false;
+    const rotate = () => {
+      deckTop = (deckTop + 1) % stackCards.length;
+      placeDeck();
+    };
 
-      const apply = () => {
-        queued = false;
-        if (glowA) glowA.style.translate = (px * 26) + 'px ' + (py * 18) + 'px';
-        if (glowB) glowB.style.translate = (px * -32) + 'px ' + (py * -20) + 'px';
-        if (heroLogo) heroLogo.style.translate =
-          'calc(-50% + ' + (px * 14) + 'px) calc(-50% + ' + (py * 12) + 'px)';
-      };
+    const startDeck = () => { if (!timer) timer = setInterval(rotate, 3600); };
+    const stopDeck = () => { clearInterval(timer); timer = null; };
 
-      window.addEventListener('mousemove', (e) => {
-        // -0.5…0.5 от центра окна
-        px = e.clientX / window.innerWidth - .5;
-        py = e.clientY / window.innerHeight - .5;
-        if (!queued) { queued = true; requestAnimationFrame(apply); }
-      }, { passive: true });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        entries[0].isIntersecting ? startDeck() : stopDeck();
+      }, { threshold: .15 }).observe(stack);
+    } else {
+      startDeck();
     }
 
-    // Колода портретов: верхний кадр уходит в конец. Крутим только пока
-    // хиро на экране — фоновая анимация впустую греет батарею.
-    if (stackCards.length > 1) {
-      let top = 0;
-      let timer = null;
-
-      const rotate = () => {
-        top = (top + 1) % stackCards.length;
-        stackCards.forEach((card, i) => {
-          card.style.setProperty('--i', (i - top + stackCards.length) % stackCards.length);
-        });
-      };
-
-      const startDeck = () => { if (!timer) timer = setInterval(rotate, 3600); };
-      const stopDeck = () => { clearInterval(timer); timer = null; };
-
-      if ('IntersectionObserver' in window) {
-        new IntersectionObserver((entries) => {
-          entries[0].isIntersecting ? startDeck() : stopDeck();
-        }, { threshold: .15 }).observe(stack);
-      } else {
-        startDeck();
-      }
-
-      document.addEventListener('visibilitychange', () => {
-        document.hidden ? stopDeck() : startDeck();
-      });
-    }
-
-    // Крупные кнопки слегка тянутся к курсору
-    if (window.matchMedia('(pointer: fine)').matches) {
-      document.querySelectorAll('.btn--lg').forEach((btn) => {
-        btn.addEventListener('mousemove', (e) => {
-          const r = btn.getBoundingClientRect();
-          const dx = (e.clientX - r.left - r.width / 2) / r.width;
-          const dy = (e.clientY - r.top - r.height / 2) / r.height;
-          btn.style.translate = (dx * 10) + 'px ' + (dy * 6) + 'px';
-        });
-        btn.addEventListener('mouseleave', () => { btn.style.translate = ''; });
-      });
-    }
+    document.addEventListener('visibilitychange', () => {
+      document.hidden ? stopDeck() : startDeck();
+    });
   }
 
   /* ------------------------------------------------------------------ */

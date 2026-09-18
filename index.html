@@ -6,7 +6,7 @@
 
 <title>AI TERRA — AI-фотосессия и новая визуальная идентичность</title>
 <meta name="description" content="AI TERRA создаёт персональные AI-портреты в пяти направлениях: деловой портрет, editorial, lifestyle cinematic, personal brand и fantasy. Без студии, сложной подготовки и долгой съёмки.">
-<meta name="theme-color" content="#0A0611">
+<meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://vladimir-ing.github.io/ALTERA-Photo-Studio/">
 
 <meta property="og:type" content="website">
@@ -32,7 +32,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -75,13 +75,11 @@
 })();
 </script>
 
-<div class="grain" aria-hidden="true"></div>
-
 <header class="site-header" id="top">
   <div class="site-header__bar">
     <a class="logo" href="#top" aria-label="На главную">
       <img class="logo__mark" src="assets/logo/altera-mark.svg" alt="" width="512" height="512">
-      <span class="logo__text">AI TERRA<span class="logo__thin">by ALTERA</span></span>
+      <span class="logo__text">AI TERRA</span>
     </a>
 
     <nav class="nav" id="site-nav" aria-label="Разделы портфолио">
@@ -95,66 +93,46 @@
       </button>
     </div>
   </div>
-  <div class="site-header__progress" aria-hidden="true"><i></i></div>
 </header>
 
 <main>
 
   <!-- ХИРО -->
   <section class="hero">
-    <div class="hero__glow hero__glow--a" aria-hidden="true"></div>
-    <div class="hero__glow hero__glow--b" aria-hidden="true"></div>
-    <!-- Знак во всю секцию: и текст, и портреты лежат поверх него -->
-    <img class="hero__logo" src="assets/logo/altera-mark.svg" alt="" width="512" height="512" aria-hidden="true">
+    <div class="wrap">
+      <!-- Названия используемых нейросетей клиенту не показываем: он покупает
+           результат, а не инструмент. -->
+      <p class="eyebrow reveal">AI-фотосессия без студии и фотографа</p>
 
-    <div class="wrap hero__inner">
-      <div class="hero__copy">
-        <!-- Названия используемых нейросетей клиенту не показываем: он покупает
-             результат, а не инструмент. Регистр поднимает CSS (.eyebrow). -->
-        <p class="eyebrow reveal">AI-фотосессия · без студии и фотографа</p>
+      <h1 class="hero__title reveal">
+        <span>Одна внешность.</span>
+        <span class="hero__accent">Пять образов.</span>
+      </h1>
 
-        <h1 class="hero__title reveal">
-          <span>Одна внешность —</span>
-          <span class="hero__accent">пять образов</span>
-        </h1>
+      <p class="hero__lead reveal">
+        AI TERRA превращает обычные снимки с телефона в цельную серию портретов —
+        для бизнеса, соцсетей и личного бренда. Все работы на этой странице сделаны именно так.
+      </p>
 
-        <p class="hero__lead reveal">
-          AI TERRA превращает обычные снимки в цельную визуальную историю. Без студии,
-          сложной подготовки и свободного дня: получаешь персональные портреты для бизнеса,
-          соцсетей и личного бренда. Все работы ниже созданы этим же способом.
-        </p>
-
-        <div class="hero__actions reveal">
-          <a class="btn btn--solid btn--lg" href="#contact">Создать свои образы</a>
-          <a class="btn btn--ghost btn--lg" href="#work">Смотреть работы</a>
-        </div>
-
-        <div class="hero__flow reveal" aria-hidden="true">
-          <div class="flow__source">
-            <div class="flow__source-icon"></div>
-            <span>10–15 твоих фото</span>
-          </div>
-          <div class="flow__arrow"><span></span></div>
-          <ul class="flow__out">
-            <!-- превью стилей генерируются из gallery-data.js -->
-          </ul>
-          <p class="flow__note">Пять образов<br>из одной серии</p>
-        </div>
+      <div class="hero__actions reveal">
+        <a class="btn btn--solid btn--lg" href="#contact">Создать свои образы</a>
+        <a class="link-more" href="#work">Смотреть работы</a>
       </div>
+    </div>
 
-      <!-- Стек портретов; собирается из gallery-data.js -->
-      <div class="hero__showcase" aria-hidden="true">
-        <div class="hero__stack"></div>
-      </div>
+    <!-- Колода портретов; собирается из gallery-data.js -->
+    <div class="hero__showcase reveal" aria-hidden="true">
+      <div class="hero__stack"></div>
+    </div>
+
+    <div class="wrap">
+      <ul class="hero__facts reveal">
+        <li><b>10–15</b><span>обычных селфи от тебя</span></li>
+        <li><b>3 дня</b><span>на всю работу</span></li>
+        <li><b>20</b><span>готовых кадров в пяти стилях</span></li>
+      </ul>
     </div>
   </section>
-
-  <!-- БЕГУЩАЯ СТРОКА -->
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee__track">
-      <!-- содержимое генерируется из gallery-data.js -->
-    </div>
-  </div>
 
   <!-- ИСХОДНИК → РЕЗУЛЬТАТ (появляется, когда заполнен COMPARE) -->
   <div id="compare-slot"></div>
@@ -167,8 +145,10 @@
   <!-- КАК ЭТО РАБОТАЕТ -->
   <section class="how" id="how">
     <div class="wrap">
-      <p class="eyebrow reveal">Как это работает</p>
-      <h2 class="section-title reveal">Три шага<br>до новой версии себя</h2>
+      <div class="section-head reveal">
+        <p class="eyebrow">Как это работает</p>
+        <h2 class="section-title">Три шага. <span class="dim">До новой версии себя.</span></h2>
+      </div>
 
       <ol class="steps">
         <li class="step reveal">
@@ -193,8 +173,10 @@
   <!-- ПАКЕТЫ -->
   <section class="packages" id="packages">
     <div class="wrap">
-      <p class="eyebrow reveal">Цена</p>
-      <h2 class="section-title reveal">Сколько стоит<br>и что входит</h2>
+      <div class="section-head reveal">
+        <p class="eyebrow">Цена</p>
+        <h2 class="section-title">Сколько стоит. <span class="dim">И что входит.</span></h2>
+      </div>
       <!-- панель с ценой и плашка-напоминание генерируются из gallery-data.js -->
       <div class="packages__slot"></div>
     </div>
@@ -203,8 +185,10 @@
   <!-- ВОПРОСЫ -->
   <section class="faq" id="faq">
     <div class="wrap">
-      <p class="eyebrow reveal">Вопросы</p>
-      <h2 class="section-title reveal">Что обычно<br>спрашивают</h2>
+      <div class="section-head reveal">
+        <p class="eyebrow">Вопросы</p>
+        <h2 class="section-title">Что обычно спрашивают.</h2>
+      </div>
       <!--
         Вопросы лежат прямо в разметке, а не собираются скриптом.
         Это единственный крупный блок связного текста на странице: он должен
