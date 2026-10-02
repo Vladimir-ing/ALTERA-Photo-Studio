@@ -193,7 +193,10 @@ button {
 .site-header::before {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: -1;
   background: rgba(22, 22, 23, .8);
   backdrop-filter: saturate(180%) blur(20px);
@@ -328,7 +331,10 @@ button {
 
 .hero__stack {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
 .hero__card {
@@ -366,7 +372,8 @@ button {
 
 /* Карточка прячется, если в серии нет кадра для её стиля */
 .hero__card[hidden] { display: none; }
-.hero__card-img { position: absolute; inset: 0; }
+.hero__card-img { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+.hero__card-img img { transition: opacity .35s var(--ease); }
 
 /* Три факта под колодой — строка цифр, как характеристики на странице продукта */
 .hero__facts {
@@ -426,21 +433,25 @@ button {
   margin: -1.5rem 0 clamp(1.8rem, 3.5vw, 2.6rem);
 }
 
-/* Над галереями переключатель прилипает под шапкой, пока открыт блок #work */
-.series-bar {
-  position: sticky;
-  top: calc(var(--header-h) + .75rem);
-  z-index: 50;
+/* Тот же переключатель в шапке: как только переключатель хиро уходит за
+   верх экрана, он появляется здесь (класс has-series ставит main.js).
+   Раньше переключатель прилипал плашкой над галереями и наезжал на
+   заголовки, фото и подписи — шапка ничего под собой не перекрывает. */
+.site-header__series { display: none; }
+.site-header.has-series .site-header__series {
   display: flex;
-  justify-content: center;
-  padding-top: clamp(3rem, 7vw, 5rem);
-  margin-bottom: calc(-1 * clamp(1rem, 3vw, 2.5rem));
-  pointer-events: none;
+  align-items: center;
 }
-.series-bar .series-switch {
-  pointer-events: auto;
-  background: rgba(58, 58, 60, .72);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+.site-header__series .series-switch { padding: 2px; }
+.site-header__series .series-switch__btn {
+  min-width: 0;
+  padding: .35rem .85rem;
+  font-size: .82rem;
+}
+/* На узких экранах в шапке места на переключатель и «Заказать» не хватает —
+   заказ остаётся на плавающей кнопке под hero и на панели цены */
+@media (max-width: 30em) {
+  .site-header.has-series .site-header__actions .btn { display: none; }
 }
 
 /* Смена серии: кадры коротко гаснут и проявляются уже новые */
@@ -564,6 +575,40 @@ button {
 .tile__btn:hover .tile__idx,
 .tile__btn:focus-visible .tile__idx { opacity: 1; }
 
+/* Кадры проявляются, когда догрузились: тёмная плитка без признака жизни
+   выглядит как поломка страницы. Классы ставит main.js (wireFades). */
+.img-fade { opacity: 0; }
+.img-fade.is-loaded,
+.img-fade.is-error { opacity: 1; }
+
+/* «Дыхание» на месте кадра, пока тот грузится */
+@keyframes tile-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+.tile__btn::after,
+.hero__card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .06) 50%, transparent 65%);
+  background-size: 200% 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+.tile__btn:not(.is-loaded)::after,
+.hero__card:not(.is-loaded)::after {
+  opacity: 1;
+  animation: tile-shimmer 1.5s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile__btn::after,
+  .hero__card::after { display: none; }
+}
+
 /* --- Ещё образы -------------------------------------------------------- */
 
 .extra {
@@ -612,7 +657,7 @@ button {
   height: 100%;
   object-fit: cover;
   object-position: 50% 20%;
-  transition: transform .7s var(--ease);
+  transition: transform .7s var(--ease), opacity .35s var(--ease);
 }
 .extra-card:hover .extra-card__img img { transform: scale(1.035); }
 
@@ -692,12 +737,15 @@ button {
   touch-action: pan-y;
 }
 .compare__viewer img { width: 100%; display: block; }
+.compare__after img { transition: opacity .35s var(--ease); }
 
 /* Верхний кадр обрезается по --pos, нижний виден целиком */
 .compare__before {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   height: 100%;
+  width: 100%;
   object-fit: cover;
   clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0);
 }
@@ -708,8 +756,8 @@ button {
   bottom: 0;
   left: var(--pos, 50%);
   width: 2px;
+  margin-left: -1px;
   background: #fff;
-  translate: -1px 0;
   pointer-events: none;
 }
 .compare__handle::after {
@@ -719,7 +767,7 @@ button {
   left: 50%;
   width: 44px;
   height: 44px;
-  translate: -50% -50%;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -733,7 +781,8 @@ button {
 /* Ползунок прозрачный поверх картинки: тянется мышью, пальцем и стрелками */
 .compare__range {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   margin: 0;
@@ -848,7 +897,7 @@ button {
   height: 6px;
   border-left: 2px solid var(--accent);
   border-bottom: 2px solid var(--accent);
-  rotate: -45deg;
+  transform: rotate(-45deg);
 }
 
 /* --- Вопросы ----------------------------------------------------------- */
@@ -890,7 +939,7 @@ button {
   color: var(--muted);
   transition: rotate .3s var(--ease);
 }
-.faq__item[open] .faq__q::after { rotate: 45deg; }
+.faq__item[open] .faq__q::after { transform: rotate(45deg); }
 
 .faq__a {
   padding: 0 3rem 1.5rem 0;
@@ -969,7 +1018,10 @@ button {
 
 .lightbox {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 300;
   display: grid;
   place-items: center;
@@ -1041,7 +1093,7 @@ button {
 .lightbox__close::before { transform: translate(-50%, -50%) rotate(45deg); }
 .lightbox__close::after  { transform: translate(-50%, -50%) rotate(-45deg); }
 
-.lightbox__nav { top: 50%; translate: 0 -50%; }
+.lightbox__nav { top: 50%; transform: translateY(-50%); }
 .lightbox__nav--prev { left: clamp(.5rem, 2vw, 1.8rem); }
 .lightbox__nav--next { right: clamp(.5rem, 2vw, 1.8rem); }
 .lightbox__nav::before {
@@ -1077,16 +1129,15 @@ button {
   left: 50%;
   bottom: 1rem;
   z-index: 90;
-  translate: -50% 0;
   display: none;
   padding: .8rem 1.5rem;
   font-size: 1rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
   opacity: 0;
   transition: opacity .3s var(--ease), transform .3s var(--ease), background-color .2s var(--ease);
-  transform: translateY(140%);
+  transform: translate(-50%, 140%);
 }
-.cta-dock.is-shown { opacity: 1; transform: none; }
+.cta-dock.is-shown { opacity: 1; transform: translate(-50%, 0); }
 
 @media (max-width: 62em) {
   .cta-dock { display: inline-flex; }
@@ -1098,7 +1149,10 @@ button {
 
 .preloader {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 400;
   display: grid;
   place-items: center;
@@ -1127,7 +1181,13 @@ button {
 
   .nav {
     position: fixed;
-    inset: var(--header-h) 0 0;
+    /* длинная запись вместо shorthand inset: старые Safari (до 14.5) его
+       не понимали — меню вставало в поток и раскрывалось списком поверх
+       первого экрана, хотя должно быть спрятано за бургером */
+    top: var(--header-h);
+    right: 0;
+    bottom: 0;
+    left: 0;
     margin: 0;
     flex-direction: column;
     align-items: flex-start;

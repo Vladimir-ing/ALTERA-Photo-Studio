@@ -40,6 +40,28 @@
       '<img src="' + src + '" ' + attrs + '>' +
     '</picture>';
 
+  /*
+   * Кадры проявляются после загрузки, а плитка до того «дышит»:
+   * тёмный прямоугольник без признаков жизни выглядит как поломка страницы.
+   * Класс is-loaded на плитке гасит подсветку, на картинке включает проявление.
+   */
+  function wireFades(root) {
+    root.querySelectorAll('img').forEach((img) => {
+      img.classList.add('img-fade');
+      const settle = (loaded) => {
+        img.classList.add(loaded ? 'is-loaded' : 'is-error');
+        const tile = img.closest('.tile__btn, .hero__card');
+        if (tile) tile.classList.add('is-loaded');
+      };
+      // complete бывает и у закешированной битой картинки: naturalWidth
+      // отличает успешную загрузку от ошибки — ошибки больше не повторится,
+      // поэтому показываем как есть, а не оставляем плитку невидимой
+      if (img.complete) { settle(img.naturalWidth > 0); return; }
+      img.addEventListener('load', () => settle(true), { once: true });
+      img.addEventListener('error', () => settle(false), { once: true });
+    });
+  }
+
   /* ------------------------------------------------------------------ */
   /* Блокировка прокрутки                                                */
   /* ------------------------------------------------------------------ */
@@ -168,6 +190,7 @@
         picture(photo.thumb, 'alt="" width="' + photo.w + '" height="' + photo.h + '"' +
           (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') + ' decoding="async"');
     });
+    wireFades(stack);
   }
 
   if (stack) {
@@ -209,6 +232,7 @@
     before.src = c.before.src;
     before.alt = c.before.alt;
     $('.compare__text .style__desc', compareEl).textContent = c.description || '';
+    wireFades(compareEl);
   }
 
   if (compareOf()) {
@@ -276,13 +300,16 @@
     return many;
   }
 
-  // Переключатель над разделами прилипает под шапкой, пока открыты галереи:
-  // листая женскую серию, не нужно возвращаться наверх, чтобы сменить её.
-  if (SERIES_LIST.length > 1) {
-    const bar = document.createElement('div');
-    bar.className = 'series-bar';
-    bar.appendChild(seriesSwitch());
-    work.appendChild(bar);
+  // Переключатель над разделами прилипал под шапкой плашкой и наезжал
+  // на заголовки, фото и подписи. Теперь у переключателя одно место на
+  // весь скролл — сама шапка: появляется классом has-series, когда
+  // переключатель хиро уходит за верхний край. Контент не перекрывается.
+  const headerBar = $('.site-header__bar');
+  if (headerBar && SERIES_LIST.length > 1) {
+    const slot = document.createElement('div');
+    slot.className = 'site-header__series';
+    slot.appendChild(seriesSwitch());
+    headerBar.insertBefore(slot, $('.site-header__actions', headerBar));
   }
 
   // Сетка раздела под текущую серию: плитки, счётчик кадров, раскладка
@@ -305,6 +332,7 @@
         '</button>' +
       '</li>'
     ).join('');
+    wireFades(grid);
     $('.style__count', el).textContent = count + ' ' + plural(count, 'кадр', 'кадра', 'кадров');
     // раздел без кадров в этой серии не показываем вовсе
     el.hidden = count === 0;
@@ -368,6 +396,7 @@
         '</div>' +
       '</li>'
     ).join('');
+    wireFades($('.extra__track', extraEl));
   }
 
   if (extraSlot && typeof EXTRA_STYLES !== 'undefined' && EXTRA_STYLES.length &&
@@ -446,6 +475,23 @@
   });
 
   markSwitches();
+
+  // Пока человек смотрит одну серию, первые кадры остальных тихо
+  // прогреваются: первый переход «Мужчина → Женщина» не начинается
+  // с пустых плиток.
+  function prefetchSeries(id) {
+    GALLERY.forEach((section) => {
+      const photo = ((section.photos || {})[id] || [])[0];
+      if (!photo) return;
+      const pre = new Image();
+      pre.src = supportsWebp ? photo.thumb.replace(/\.jpg$/, '.webp') : photo.thumb;
+    });
+  }
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      SERIES_LIST.forEach((s) => { if (s.id !== series) prefetchSeries(s.id); });
+    }, 3000);
+  });
 
   /* ------------------------------------------------------------------ */
   /* Цена                                                                */
@@ -589,6 +635,7 @@
   const header = $('.site-header');
   const dock = $('#cta-dock');
   const hero = $('.hero');
+  const heroSwitchSlot = $('.hero__series');
   const navLinks = Array.from(nav.querySelectorAll('.nav__link'));
 
   // Кроме галерейных разделов считаем и те, что идут после них: иначе,
@@ -602,7 +649,10 @@
   let sectionTops = [];
   let headerHeight = 0;
   let heroBottom = 0;
+  // Ниже этой границы прокрутки переключатель серии живёт в шапке
+  let heroSwitchLine = 0;
   let packagesRange = [Infinity, Infinity];
+  let compareRange = [Infinity, Infinity];
 
   // Все замеры делаются заранее, чтобы update() на скролле был чистой
   // арифметикой: тогда его можно звать напрямую, без throttle через
@@ -613,9 +663,18 @@
     headerHeight = header.offsetHeight;
     sectionTops = sections.map((el) => (el ? el.getBoundingClientRect().top + window.scrollY : Infinity));
     heroBottom = hero ? hero.getBoundingClientRect().bottom + window.scrollY : 0;
+    heroSwitchLine = heroSwitchSlot && SERIES_LIST.length > 1
+      ? heroSwitchSlot.getBoundingClientRect().bottom + window.scrollY - 8
+      : heroBottom;
     if (packagesEl) {
       const r = packagesEl.getBoundingClientRect();
       packagesRange = [r.top + window.scrollY, r.bottom + window.scrollY];
+    }
+    if (compareEl && !compareEl.hidden) {
+      const r = compareEl.getBoundingClientRect();
+      compareRange = [r.top + window.scrollY, r.bottom + window.scrollY];
+    } else {
+      compareRange = [Infinity, Infinity];
     }
     update();
   }
@@ -631,6 +690,10 @@
 
     navLinks.forEach((link, i) => link.classList.toggle('is-active', i === activeIndex));
 
+    // Переключатель серии переезжает в шапку, когда переключатель хиро
+    // ушёл за верхний край экрана
+    header.classList.toggle('has-series', y > heroSwitchLine);
+
     // Кнопка появляется, когда хиро уехало, и прячется над футером,
     // чтобы не закрывать контакты — они там и так крупные.
     if (dock) {
@@ -639,8 +702,11 @@
       // В пакетах кнопка молчит: у каждой карточки своя, и плавающая
       // накрывала бы её собой.
       const overPackages = bottom > packagesRange[0] + 200 && y < packagesRange[1];
+      // И над блоком «исходник → результат»: кнопка накрывала подписи
+      // «Исходник/Результат» и мешала тянуть ползунок на телефоне.
+      const overCompare = bottom > compareRange[0] + 120 && y < compareRange[1];
       dock.classList.toggle('is-shown',
-        y > heroBottom && bottom < footerTop + 120 && !overPackages);
+        y > heroBottom && bottom < footerTop + 120 && !overPackages && !overCompare);
     }
   }
 
