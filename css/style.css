@@ -223,11 +223,14 @@ button {
   letter-spacing: -.01em;
   flex-shrink: 0;
 }
+/* кристалл «T» уже ромба ALTERA, поэтому чуть крупнее прежних 22 px */
 .logo__mark {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
 }
+/* фирменное написание: AI TERRA капслоком с разрядкой */
+.logo__text { letter-spacing: .06em; }
 
 .nav {
   display: flex;
@@ -452,6 +455,12 @@ button {
    заказ остаётся на плавающей кнопке под hero и на панели цены */
 @media (max-width: 30em) {
   .site-header.has-series .site-header__actions .btn { display: none; }
+  /* и промежутки поуже: иначе на 375 px бургер уезжает за правый край */
+  .site-header.has-series .site-header__bar { gap: .75rem; }
+}
+/* совсем узкие телефоны (320–360 px): в шапке остаётся один знак «T» */
+@media (max-width: 23em) {
+  .site-header.has-series .logo__text { display: none; }
 }
 
 /* Смена серии: кадры коротко гаснут и проявляются уже новые */
@@ -1013,6 +1022,14 @@ button {
 /* подпись дизайн-студии ALTERA внизу сайта */
 .footer__bottom a { color: var(--soft); }
 .footer__bottom a:hover { color: var(--text); text-decoration: underline; }
+/* ромб ALTERA — знак студии, а не продукта: на сайте он только здесь, у «by ALTERA» */
+.footer__by img {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: .35em;
+  vertical-align: -2px;
+}
 
 /* --- Лайтбокс ---------------------------------------------------------- */
 

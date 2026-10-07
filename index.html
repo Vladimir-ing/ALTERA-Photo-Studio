@@ -28,7 +28,7 @@
 <link rel="manifest" href="site.webmanifest">
 
 <!-- знак нужен в первую же секунду: и в шапке, и на заставке -->
-<link rel="preload" href="assets/logo/altera-mark.svg" as="image" type="image/svg+xml">
+<link rel="preload" href="assets/logo/ai-terra-mark-320.webp" as="image" type="image/webp">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,7 +43,11 @@
 <!-- Заставка скрыта в разметке и показывается только скриптом: без JS
      и для поисковика её просто нет, страница ничем не перекрыта. -->
 <div class="preloader" id="preloader" hidden aria-hidden="true">
-  <img class="preloader__mark" src="assets/logo/altera-mark.svg" alt="" width="512" height="512">
+  <!-- кристалл «T» — знак AI TERRA; знак ALTERA (ромб с «А») живёт только в подвале -->
+  <picture>
+    <source srcset="assets/logo/ai-terra-mark-320.webp" type="image/webp">
+    <img class="preloader__mark" src="assets/logo/ai-terra-mark-320.png" alt="" width="320" height="320">
+  </picture>
 </div>
 <script>
 /*
@@ -78,7 +82,7 @@
 <header class="site-header" id="top">
   <div class="site-header__bar">
     <a class="logo" href="#top" aria-label="На главную">
-      <img class="logo__mark" src="assets/logo/altera-mark.svg" alt="" width="512" height="512">
+      <img class="logo__mark" src="assets/logo/ai-terra-mark-96.png" alt="" width="96" height="96">
       <span class="logo__text">AI TERRA</span>
     </a>
 
@@ -281,7 +285,7 @@
     </ul>
 
     <div class="footer__bottom">
-      <span>© <span id="year">2026</span> AI TERRA <a href="https://altera-tau.vercel.app/" target="_blank" rel="noreferrer">by ALTERA ↗</a></span>
+      <span>© <span id="year">2026</span> AI TERRA <a class="footer__by" href="https://altera-tau.vercel.app/" target="_blank" rel="noreferrer"><img src="assets/logo/altera-mark.svg" alt="" width="14" height="14">by ALTERA ↗</a></span>
       <span>Все портреты на странице сгенерированы нейросетью</span>
     </div>
   </div>

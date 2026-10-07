@@ -1,32 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ALTERA">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AI TERRA">
   <!--
-    Иконка вкладки: тот же знак, но упрощённый под мелкий размер.
-    В 16 px блик, теневая грань и контрформа «А» превращаются в грязь,
-    поэтому здесь их нет, а сама «А» крупнее, чем в полном знаке.
+    Иконка вкладки: кристалл «T» AI TERRA, упрощённый под мелкий размер.
+    В 16 px мелкие грани и блики полного знака превращаются в грязь,
+    поэтому здесь только крупные грани: светлая левая половина и тёмная
+    правая, как у полного знака (assets/logo/ai-terra-mark-*.png).
   -->
   <defs>
-    <linearGradient id="f-ul" gradientUnits="userSpaceOnUse" x1="5" y1="32" x2="32" y2="15">
-      <stop offset="0" stop-color="#FF8A00"/><stop offset="1" stop-color="#FF2D9B"/>
+    <linearGradient id="t-top" gradientUnits="userSpaceOnUse" x1="5" y1="0" x2="59" y2="0">
+      <stop offset="0" stop-color="#FFC23A"/><stop offset=".5" stop-color="#FF8A00"/><stop offset="1" stop-color="#FF2D9B"/>
     </linearGradient>
-    <linearGradient id="f-ur" gradientUnits="userSpaceOnUse" x1="59" y1="32" x2="32" y2="15">
-      <stop offset="0" stop-color="#6D28E8"/><stop offset="1" stop-color="#E5219B"/>
+    <linearGradient id="t-bl" gradientUnits="userSpaceOnUse" x1="5" y1="0" x2="32" y2="0">
+      <stop offset="0" stop-color="#FF8A00"/><stop offset="1" stop-color="#E8352F"/>
     </linearGradient>
-    <linearGradient id="f-ll" gradientUnits="userSpaceOnUse" x1="5" y1="32" x2="32" y2="52">
-      <stop offset="0" stop-color="#FF7A18"/><stop offset="1" stop-color="#FF2D9B"/>
+    <linearGradient id="t-br" gradientUnits="userSpaceOnUse" x1="32" y1="0" x2="59" y2="0">
+      <stop offset="0" stop-color="#B02A6E"/><stop offset="1" stop-color="#8B3BF7"/>
     </linearGradient>
-    <linearGradient id="f-lr" gradientUnits="userSpaceOnUse" x1="59" y1="32" x2="32" y2="52">
-      <stop offset="0" stop-color="#8B3BF7"/><stop offset="1" stop-color="#F0339E"/>
+    <linearGradient id="t-sl" gradientUnits="userSpaceOnUse" x1="0" y1="22" x2="0" y2="52">
+      <stop offset="0" stop-color="#FF7A18"/><stop offset="1" stop-color="#FFB13A"/>
     </linearGradient>
-    <mask id="f-a">
-      <rect width="64" height="64" fill="#fff"/>
-      <path d="M32 21 47 47 17 47Z" fill="#000"/>
-    </mask>
+    <linearGradient id="t-sr" gradientUnits="userSpaceOnUse" x1="0" y1="22" x2="0" y2="52">
+      <stop offset="0" stop-color="#6D28B8"/><stop offset="1" stop-color="#C2307A"/>
+    </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="#0A0611"/>
-  <g mask="url(#f-a)">
-    <path d="M32 6 5 32 32 32Z"  fill="url(#f-ul)"/>
-    <path d="M32 6 59 32 32 32Z" fill="url(#f-ur)"/>
-    <path d="M32 58 5 32 32 32Z"  fill="url(#f-ll)"/>
-    <path d="M32 58 59 32 32 32Z" fill="url(#f-lr)"/>
-  </g>
+  <rect width="64" height="64" rx="14" fill="#080714"/>
+  <!-- перекладина: верхняя грань и две нижние -->
+  <path d="M5 20 10 12 54 12 59 20Z" fill="url(#t-top)"/>
+  <path d="M5 20 32 20 25 27 10 27Z" fill="url(#t-bl)"/>
+  <path d="M32 20 59 20 54 27 39 27Z" fill="url(#t-br)"/>
+  <!-- ножка -->
+  <path d="M25 27 32 20 32 50 25 52Z" fill="url(#t-sl)"/>
+  <path d="M32 20 39 27 39 52 32 50Z" fill="url(#t-sr)"/>
+  <!-- остриё -->
+  <path d="M25 52 32 50 32 58Z" fill="#FF4B3A"/>
+  <path d="M32 50 39 52 32 58Z" fill="#E0306A"/>
 </svg>
