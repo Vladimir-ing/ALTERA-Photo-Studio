@@ -458,8 +458,8 @@ button {
   /* и промежутки поуже: иначе на 375 px бургер уезжает за правый край */
   .site-header.has-series .site-header__bar { gap: .75rem; }
 }
-/* совсем узкие телефоны (320–360 px): в шапке остаётся один знак «T» */
-@media (max-width: 23em) {
+/* совсем узкие телефоны (до 376 px): в шапке остаётся один знак «T» */
+@media (max-width: 23.5em) {
   .site-header.has-series .logo__text { display: none; }
 }
 
