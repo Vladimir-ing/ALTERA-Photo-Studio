@@ -522,6 +522,16 @@ button {
   color: var(--muted);
 }
 
+/* Подпись под портфолио: одна мелкая серая строка, без ссылки */
+.work-note {
+  margin: 2.5rem 0 0;
+  text-align: center;
+  font-size: .85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.work-note[hidden] { display: none; }
+
 /* Сетка: плотная для разделов с 4+ фото, крупная для 2-3.
    auto-fit, а не auto-fill: auto-fill оставлял пустые колонки, и четыре кадра
    раскладывались в пять ячеек — плитка выходила мелкой, а справа зияла дыра.
@@ -552,7 +562,8 @@ button {
   border-radius: var(--radius);
   overflow: hidden;
   background: var(--panel-2);
-  aspect-ratio: 2 / 3;
+  /* пропорция файла 848×1264 (2:3): плитка совпадает с кадром, обрезки нет */
+  aspect-ratio: 848 / 1264;
 }
 
 .tile__btn img {
