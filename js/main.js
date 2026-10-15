@@ -421,8 +421,8 @@
         '<div class="section-head reveal">' +
           '<p class="eyebrow">Ещё образы</p>' +
           '<h2 class="section-title" id="extra-title">Больше стилей. <span class="dim">' +
-            // неразрывные пробелы: сумма не должна рваться на «+790» и «₽»
-            esc((PRICING.extra ? PRICING.extra.price : '+790 ₽').replace(/ /g, ' ')) +
+            // неразрывные пробелы: сумма не должна рваться на «+890» и «₽»
+            esc((PRICING.extra ? PRICING.extra.price : '+890 ₽').replace(/ /g, ' ')) +
             ' за каждый.</span></h2>' +
           '<p class="section-lead">Добавь к фотосессии любой из этих образов — сверх пяти основных направлений.</p>' +
         '</div>' +
