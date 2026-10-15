@@ -367,9 +367,9 @@
     return el;
   });
 
-  // Подпись под женской серией (после последнего раздела, перед «Тремя шагами»)
+  // Подпись под портфолио обеих серий (после последнего раздела, перед «Тремя шагами»)
   const workNote = $('#work-note');
-  const markWorkNote = () => { if (workNote) workNote.hidden = series !== 'woman'; };
+  const markWorkNote = () => { if (workNote) workNote.hidden = false; };
   markWorkNote();
 
   /* ------------------------------------------------------------------ */
