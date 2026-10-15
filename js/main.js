@@ -143,6 +143,8 @@
     return SERIES_LIST[0].id;
   })();
 
+  // текст раздела для текущей серии: section.titles/taglines/descriptions[серия], иначе общий title/tagline/description
+  const textOf = (section, key) => (section[key + 's'] && section[key + 's'][series]) || section[key];
   const photosOf = (section) => (section.photos && section.photos[series]) || [];
 
   // Переключатель в духе iOS: две кнопки, нажатая подсвечена плашкой
@@ -325,7 +327,7 @@
     grid.innerHTML = photos.map((photo, i) =>
       '<li class="tile">' +
         '<button class="tile__btn" type="button" data-section="' + section.id + '" data-index="' + i + '"' +
-          ' aria-label="Открыть фото ' + (i + 1) + ' из ' + count + ', стиль «' + esc(section.title) + '»">' +
+          ' aria-label="Открыть фото ' + (i + 1) + ' из ' + count + ', стиль «' + esc(textOf(section, 'title')) + '»">' +
           picture(photo.thumb, 'alt="' + esc(photo.alt) + '" width="' + photo.w + '" height="' + photo.h + '"' +
             ' loading="lazy" decoding="async"') +
           '<span class="tile__idx">' + String(i + 1).padStart(2, '0') + '</span>' +
@@ -333,8 +335,10 @@
       '</li>'
     ).join('');
     wireFades(grid);
-    // строка под заголовком: у серии может быть свой текст (section.descriptions[серия])
-    $('.style__desc', el).textContent = (section.descriptions && section.descriptions[series]) || section.description;
+    // заголовок, подзаголовок и описание: у серии может быть свой текст
+    $('.style__title', el).textContent = textOf(section, 'title');
+    $('.style__tagline', el).textContent = textOf(section, 'tagline');
+    $('.style__desc', el).textContent = textOf(section, 'description');
     $('.style__count', el).textContent = count + ' ' + plural(count, 'кадр', 'кадра', 'кадров');
     // раздел без кадров в этой серии не показываем вовсе
     el.hidden = count === 0;
@@ -367,9 +371,9 @@
     return el;
   });
 
-  // Подпись под женской серией (после последнего раздела, перед «Тремя шагами»)
+  // Подпись под портфолио обеих серий (после последнего раздела, перед «Тремя шагами»)
   const workNote = $('#work-note');
-  const markWorkNote = () => { if (workNote) workNote.hidden = series !== 'woman'; };
+  const markWorkNote = () => { if (workNote) workNote.hidden = false; };
   markWorkNote();
 
   /* ------------------------------------------------------------------ */
@@ -771,7 +775,7 @@
     lbImg.alt = photo.alt;
     lbImg.width = photo.w;
     lbImg.height = photo.h;
-    lbStyle.textContent = currentSection.title;
+    lbStyle.textContent = textOf(currentSection, 'title');
     lbCounter.textContent = (currentIndex + 1) + ' / ' + photos.length;
 
     // соседние кадры подгружаются заранее — листание идёт без задержки
