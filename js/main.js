@@ -333,6 +333,8 @@
       '</li>'
     ).join('');
     wireFades(grid);
+    // строка под заголовком: у серии может быть свой текст (section.descriptions[серия])
+    $('.style__desc', el).textContent = (section.descriptions && section.descriptions[series]) || section.description;
     $('.style__count', el).textContent = count + ' ' + plural(count, 'кадр', 'кадра', 'кадров');
     // раздел без кадров в этой серии не показываем вовсе
     el.hidden = count === 0;
@@ -364,6 +366,11 @@
     work.appendChild(el);
     return el;
   });
+
+  // Подпись под женской серией (после последнего раздела, перед «Тремя шагами»)
+  const workNote = $('#work-note');
+  const markWorkNote = () => { if (workNote) workNote.hidden = series !== 'woman'; };
+  markWorkNote();
 
   /* ------------------------------------------------------------------ */
   /* Ещё образы                                                          */
@@ -442,6 +449,7 @@
     renderCompare();
     GALLERY.forEach((section, i) => renderGrid(section, styleEls[i]));
     renderExtra();
+    markWorkNote();
     markSwitches();
     afterSeriesChange();
   }
